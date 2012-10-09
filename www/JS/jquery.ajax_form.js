@@ -1,6 +1,6 @@
 /**
  * jQuery AJAX Form
- * @version 2.18
+ * @version 2.19
  **/
 (function ($, undefined) {
 	$._ajax_form = {
@@ -99,7 +99,7 @@
 			}
 			if (options.useMaskedPhone) {
 				send.formElements.each(function () {
-					if ($(this).attr('class').match(/is_phone/i)) {
+					if ($(this).hasClass('is_phone')) {
 						$(this).mask(options.maskPhone);
 					}
 				});
