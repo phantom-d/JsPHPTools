@@ -1,6 +1,6 @@
 /**
  * jQuery AJAX Form
- * @version 2.2
+ * @version 2.21
  **/
 (function ($, undefined) {
 	$._ajax_form = {
@@ -72,7 +72,6 @@
 			});
 			return newArray;
 		}
-
 	}
 	$.fn._ajax_form = function (params) {
 		if (params.sendPath === undefined) {
@@ -217,6 +216,7 @@
 
 			function checkElement() {
 				var currentElement = $(this),
+				validElement = false,
 				surroundingElement = currentElement.parent(),
 				classes = currentElement.attr('class');
 				surroundingElement.removeClass(options.classes_valid);
@@ -228,6 +228,7 @@
 							surroundingElement.addClass('error');
 						} else {
 							surroundingElement.addClass('valid');
+							validElement = true;
 						}
 					}
 				}
@@ -240,8 +241,10 @@
 							surroundingElement.addClass('error');
 							surroundingElement.addClass('type0');
 							send.validationError = true;
+							validElement = false;
 						} else {
 							surroundingElement.addClass('valid');
+							validElement = true;
 						}
 					}
 					if (classes.match(/is_text/i)) {
@@ -250,9 +253,14 @@
 							surroundingElement.addClass('error');
 							surroundingElement.addClass('type1');
 							send.validationError = true;
+							validElement = false;
 						} else {
-							if (!surroundingElement.attr('class').match(/type0/i)) surroundingElement.removeClass('error');
-							if (value != '') surroundingElement.addClass('valid');
+							if (!surroundingElement.hasClass('type0'))
+								surroundingElement.removeClass('error');
+							if (value != '') {
+								surroundingElement.addClass('valid');
+								validElement = true;
+							}
 						}
 					}
 					if (classes.match(/is_email/i)) {
@@ -261,9 +269,14 @@
 							surroundingElement.addClass('error');
 							surroundingElement.addClass('type1');
 							send.validationError = true;
+							validElement = false;
 						} else {
-							if (!surroundingElement.attr('class').match(/type0/i)) surroundingElement.removeClass('error');
-							if (value != '') surroundingElement.addClass('valid');
+							if (!surroundingElement.hasClass('type0'))
+								surroundingElement.removeClass('error');
+							if (value != '') {
+								surroundingElement.addClass('valid');
+								validElement = true;
+							}
 						}
 					}
 					if (classes.match(/is_phone/i)) {
@@ -285,6 +298,7 @@
 							surroundingElement.removeClass('valid');
 							surroundingElement.addClass('error');
 							send.validationError = true;
+							validElement = false;
 							if (value_digits.length > 0 && value_digits.length < parseInt(phone_default[0])) {
 								surroundingElement.addClass('type2');
 							} else if (value_digits.length > parseInt(phone_default[1])) {
@@ -293,10 +307,12 @@
 								surroundingElement.addClass('type1');
 							}
 						} else {
-							if (!surroundingElement.attr('class').match(/type0/i))
+							if (!surroundingElement.hasClass('type0'))
 								surroundingElement.removeClass('error');
-							if (value != '')
+							if (value != '') {
 								surroundingElement.addClass('valid');
+								validElement = true;
+							}
 						}
 						currentElement.val(value_full);
 					}
@@ -305,12 +321,12 @@
 					send.validationError = options.afterCheckElement.call(this, send.validationError, surroundingElement, currentElement, send.formElements, options);
 					classes = currentElement.attr('class');
 					if (classes && classes.match(options.regexp.check)) {
-						if (send.validationError) {
-							surroundingElement.removeClass('valid');
-							surroundingElement.addClass('error');
-						} else {
+						if (validElement) {
 							surroundingElement.removeClass('error');
 							surroundingElement.addClass('valid');
+						} else {
+							surroundingElement.removeClass('valid');
+							surroundingElement.addClass('error');
 						}
 					}
 				}
