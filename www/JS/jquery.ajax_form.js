@@ -1,10 +1,10 @@
 /**
  * jQuery AJAX Form
- * @version 2.19
+ * @version 2.2
  **/
 (function ($, undefined) {
 	$._ajax_form = {
-		'options'	: {
+		'defaults'	: {
 			sendPath			: '/',
 			type				: 'post',
 			dataType			: 'html',
@@ -78,16 +78,16 @@
 		if (params.sendPath === undefined) {
 			var sendPath = $(this).attr('action');
 			params = $.extend(params, {
-				'sendPath' : (!sendPath) ? $._ajax_form.options.sendPath : sendPath
+				'sendPath' : (!sendPath) ? $._ajax_form.defaults.sendPath : sendPath
 			});
 		}
 		if (params.type === undefined) {
 			var type = $(this).attr('method');
 			params = $.extend(params, {
-				'type' : (!type) ? $._ajax_form.options.type : type
+				'type' : (!type) ? $._ajax_form.defaults.type : type
 			});
 		}
-		var options = $.extend($._ajax_form.options, params);
+		var options = $.extend({}, $._ajax_form.defaults, params);
 
 		return $(this).each(function () {
 			var form = $(this),
@@ -98,10 +98,8 @@
 				datastring		: ''
 			}
 			if (options.useMaskedPhone) {
-				send.formElements.each(function () {
-					if ($(this).hasClass('is_phone')) {
-						$(this).mask(options.maskPhone);
-					}
+				send.formElements.filter('.is_phone').each(function () {
+					$(this).mask(options.maskPhone);
 				});
 			}
 			if (typeof options.before == 'function')
@@ -564,11 +562,11 @@
 					focusText = input.val();
 					var pos = checkVal();
 					writeBuffer();
-					var moveCaret = function () {
+					function moveCaret () {
 						if (pos == mask.length) input.caret(0, pos);
 						else input.caret(pos);
 					}
-					($.browser.msie ? moveCaret : function () {
+					($.browser.msie ? moveCaret() : function () {
 						setTimeout(moveCaret, 0)
 					})();
 				}).bind('blur.mask', function () {

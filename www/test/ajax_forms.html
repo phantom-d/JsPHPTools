@@ -1,0 +1,103 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+		<script type="text/javascript" src="../JS/jquery-latest.min.js"></script>
+		<script type="text/javascript" src="../JS/jquery.ajax_form.js"></script>
+		<title></title>
+		<style type="text/css">
+			.error input {
+				background-color: red;
+			}
+			.valid input {
+				background-color: green;
+			}
+		</style>
+		<script type="text/javascript">
+			$(function(){
+				$('#form_1')._ajax_form({
+					'useMaskedPhone'	: true,
+					'scrollTopAdd'		: -100,
+					'beforeCheck'		: function(error, elems, options, form) {
+						console.info(options);
+					},
+					'callBack'		: function() {
+						alert('Ваше сообщение отправлено');
+					}
+				});
+				$('#form_2')._ajax_form({
+					'useMaskedPhone'	: false,
+					'scrollTopAdd'		: -100,
+					'beforeCheck'		: function(error, elems, options, form) {
+						console.info(options);
+					},
+					'callBack'		: function() {
+						alert('Ваше сообщение отправлено');
+					}
+				});
+				$('#form_3')._ajax_form({
+					'useMaskedPhone'	: false,
+					'scrollTopAdd'		: -100,
+					'beforeCheck'		: function(error, elems, options, form) {
+						console.info(options);
+					},
+					'callBack'		: function() {
+						alert('Ваше сообщение отправлено');
+					}
+				});
+				$('#form_4')._ajax_form({
+					'useMaskedPhone'	: true,
+					'scrollTopAdd'		: -100,
+					'beforeCheck'		: function(error, elems, options, form) {
+						console.info(options);
+					},
+					'callBack'		: function() {
+						alert('Ваше сообщение отправлено');
+					}
+				});
+				$('#form_5')._ajax_form({
+					'useMaskedPhone'	: false,
+					'scrollTopAdd'		: -100,
+					'beforeCheck'		: function(error, elems, options, form) {
+						console.info(options);
+					},
+					'callBack'		: function() {
+						alert('Ваше сообщение отправлено');
+					}
+				});
+			});
+		</script>
+	</head>
+	<body>
+		<form action="/text1/" method="post" id="form_1">
+			<div><input type="text" name="text1" class="is_empty" /></div>
+			<div><input type="text" name="text2" class="is_empty is_phone" /></div>
+			<div><input type="text" name="text3" class="is_empty is_email" /></div>
+			<div><input type="submit" /></div>
+		</form>
+		<form action="/text2/" method="post" id="form_2">
+			<div><input type="text" name="text1" class="is_empty" /></div>
+			<div><input type="text" name="text2" class="is_empty is_phone" /></div>
+			<div><input type="text" name="text3" class="is_empty is_email" /></div>
+			<div><input type="submit" /></div>
+		</form>
+		<form action="/text3/" method="post" id="form_3">
+			<div><input type="text" name="text1" class="is_empty" /></div>
+			<div><input type="text" name="text2" class="is_empty is_phone" /></div>
+			<div><input type="text" name="text3" class="is_empty is_email" /></div>
+			<div><input type="submit" /></div>
+		</form>
+		<form action="/text4/" method="post" id="form_4">
+			<div><input type="text" name="text1" class="is_empty" /></div>
+			<div><input type="text" name="text2" class="is_empty is_phone" /></div>
+			<div><input type="text" name="text3" class="is_empty is_email" /></div>
+			<div><input type="submit" /></div>
+		</form>
+		<form action="/text5/" method="post" id="form_5">
+			<div><input type="text" name="text1" class="is_empty" /></div>
+			<div><input type="text" name="text2" class="is_empty is_phone" /></div>
+			<div><input type="text" name="text3" class="is_empty is_email" /></div>
+			<div><input type="submit" /></div>
+		</form>
+	</body>
+</html>
