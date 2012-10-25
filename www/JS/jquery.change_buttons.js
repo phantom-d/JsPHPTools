@@ -36,7 +36,7 @@
 			change_type	: false,
 			single_image	: false,
 			single_width	: 0,
-			callback		: function(){},
+			//callback		: function(){},
 			state		: {
 				normal	: 0,
 				over		: 1,
@@ -125,7 +125,7 @@
 							if (!mDown) replacementButton.mouseup();
 						});
 
-						replacementButton.unbind('mouseover mouseenter').bind('mouseover mouseenter', function(){
+						replacementButton.unbind('mouseover mouseenter').bind('mouseover mouseenter', function() {
 							if (mDown){
 								var offset_top = "-" + (parseInt(options.height, 10) * parseInt(options.state.over, 10)) + "px",
 								offset_top_center = "-" + ((parseInt(options.height, 10) * parseInt(options.state.over, 10)) + (parseInt(options.height, 10) * 4)) + "px";
@@ -136,7 +136,7 @@
 							mOver = false;
 						});
 
-						replacementButton.unbind('mouseleave mouseout').bind('mouseleave mouseout', function(){
+						replacementButton.unbind('mouseleave mouseout').bind('mouseleave mouseout', function() {
 							if (mDown){
 								var offset_top = "-" + (parseInt(options.height, 10) * parseInt(options.state.normal, 10)) + "px",
 								offset_top_center = "-" + ((parseInt(options.height, 10) * parseInt(options.state.normal, 10)) + (parseInt(options.height, 10) * 4)) + "px";
@@ -147,15 +147,14 @@
 							mOver = true;
 						});
 						
-						replacementButton.unbind('mouseup').bind('mouseup', function(){
+						replacementButton.unbind('mouseup').bind('mouseup', function() {
 							if (mOver){
 								var offset_top = "-" + (parseInt(options.height, 10) * parseInt(options.state.normal, 10)) + "px",
 								offset_top_center = "-" + ((parseInt(options.height, 10) * parseInt(options.state.normal, 10)) + (parseInt(options.height, 10) * 4)) + "px";
 								img_left.css('backgroundPosition', "0px " + offset_top);
 								img_right.css('backgroundPosition', "-" + options.left_width + "px " + offset_top);
 								img_center.css('backgroundPosition', "0px " + offset_top_center);
-							}
-							else if (!mOver){
+							} else if (!mOver) {
 								var offset_top = "-" + (parseInt(options.height, 10) * parseInt(options.state.over, 10)) + "px",
 								offset_top_center = "-" + ((parseInt(options.height, 10) * parseInt(options.state.over, 10)) + (parseInt(options.height, 10) * 4)) + "px";
 								img_left.css('backgroundPosition', "0px " + offset_top);
@@ -165,7 +164,7 @@
 							mDown = true;
 						});
 
-						replacementButton.unbind('mousedown').bind('mousedown', function(){
+						replacementButton.unbind('mousedown').bind('mousedown', function() {
 							mDown = false;
 							var offset_top = "-" + (parseInt(options.height, 10) * parseInt(options.state.active, 10)) + "px",
 							offset_top_center = "-" + ((parseInt(options.height, 10) * parseInt(options.state.active, 10)) + (parseInt(options.height, 10) * 4)) + "px";
@@ -214,11 +213,11 @@
 					}).attr('class', 'buttonSingle').text(value);
 
 					if (disable == 0) {
-						$(document).mouseup(function(){
+						$(document).mouseup(function() {
 							if (!mDown) replacementButton.mouseup();
 						});
 
-						replacementButton.unbind('mouseover mouseenter').bind('mouseover mouseenter', function(){
+						replacementButton.unbind('mouseover mouseenter').bind('mouseover mouseenter', function() {
 							if (mDown){
 								var offset_top = "-" + (parseInt(options.height, 10) * parseInt(options.state.over, 10)) + "px";
 								img_single.css('backgroundPosition', "0px " + offset_top);
@@ -226,7 +225,7 @@
 							mOver = false;
 						});
 
-						replacementButton.unbind('mouseleave mouseout').bind('mouseleave mouseout', function(){
+						replacementButton.unbind('mouseleave mouseout').bind('mouseleave mouseout', function() {
 							if (mDown){
 								var offset_top = "-" + (parseInt(options.height, 10) * parseInt(options.state.normal, 10)) + "px";
 								img_single.css('backgroundPosition', "0px " + offset_top);
@@ -234,7 +233,7 @@
 							mOver = true;
 						});
 
-						replacementButton.unbind('mouseup').bind('mouseup', function(){
+						replacementButton.unbind('mouseup').bind('mouseup', function() {
 							if (mOver){
 								var offset_top = "-" + (parseInt(options.height, 10) * parseInt(options.state.normal, 10)) + "px";
 								img_single.css('backgroundPosition', "0px " + offset_top);
@@ -246,7 +245,7 @@
 							mDown = true;
 						});
 
-						replacementButton.unbind('mousedown').bind('mousedown', function(){
+						replacementButton.unbind('mousedown').bind('mousedown', function() {
 							mDown = false;
 							var offset_top = "-" + (parseInt(options.height, 10) * parseInt(options.state.active, 10)) + "px";
 							img_single.css('backgroundPosition', "0px " + offset_top);
@@ -261,9 +260,13 @@
 					currentButton.replaceWith(test);
 				}
 			};
-			if (options.single_image){ currentButton.operations.replaceSingleImage();}
-			else { currentButton.operations.replaceButton();}
-			options.callback.call(this);
+			if (options.single_image){
+				currentButton.operations.replaceSingleImage();
+			} else {
+				currentButton.operations.replaceButton();
+			}
+			if (typeof options.callback == 'function')
+				options.callback.call(this);
 		});
 	}
 })(jQuery);
