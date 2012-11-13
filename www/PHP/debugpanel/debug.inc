@@ -17,6 +17,8 @@ if (!function_exists('debug_sql_array')) {
 	 * Собирает массив SQL запросов, результатов и цепочки вызовов
 	 * @param string $sql SQL запрос
 	 * @param mixed $result Результат SQL запроса
+	 * @param mixed $backtrace Результат функции debug_backtrace() для вставки в часто используемые функции
+	 *	чтобы отследить откуда был вызов
 	 */
 	function debug_sql_array($sql = '', $result = null, $backtrace = null) {
 		if (!empty($_GET['debug'])) {
@@ -37,11 +39,13 @@ if (!function_exists('debug_array')) {
 	 * Собирает массив данных
 	 * @param mixed $name Ключ массива
 	 * @param mixed $value Данные
+	 * @param mixed $backtrace Результат функции debug_backtrace() для вставки в часто используемые функции
+	 *	чтобы отследить откуда был вызов
 	 */
 	function debug_array($name = '', $value = null, $backtrace = null) {
 		if (!empty($_GET['debug'])) {
 			$backtrace = (!empty($backtrace)) ? $backtrace : debug_backtrace();
-			$GLOBALS['#_DEBUG_ARRAY'][str_replace(realpath($_SERVER['DOCUMENT_ROOT']), '', $backtrace[0]['file'])][$name][$backtrace[0]['line']] = array(
+			$GLOBALS['debug_array'][str_replace(realpath($_SERVER['DOCUMENT_ROOT']), '', $backtrace[0]['file'])][$name][$backtrace[0]['line']] = array(
 				'value'		=> $value,
 				'backtrace'	=> $backtrace,
 			);
@@ -87,8 +91,10 @@ if (KELNIK && !empty($_GET['debug'])) {
 					$debug_panel->debug['view'] = $GLOBALS['view'];
 				}
 				if (!empty($GLOBALS['sql_array'])) {
-					$debug_panel->debug['sql_array'] = $GLOBALS['sql_array'];
-					$debug_panel->no_recode[] = 'sql_array';
+					$debug_panel->debug['#_SQL_ARRAY'] = $GLOBALS['sql_array'];
+				}
+				if (!empty($GLOBALS['debug_array'])) {
+					$debug_panel->debug['#_DEBUG_ARRAY'] = $GLOBALS['debug_array'];
 				}
 				$debug_panel->debug['get_included_files'] = get_included_files();
 				if (version_compare(phpversion(), '5.0.0') >= 0) {
