@@ -102,13 +102,13 @@
 				});
 			}
 			if (typeof options.before == 'function')
-				options.before.call(this, send.formElements, send.button, options);
+				options.before.call(this, form, send.formElements, send.button, options);
 			send.formElements.filter(':not(select)').keyup(checkElement);
 			send.formElements.filter('select').change(checkElement);
 			send.button.click(checkElementsToSend);
 
 			if (typeof options.after == 'function')
-				options.after.call(this, form, send.formElements, options);
+				options.after.call(this, form, send.formElements, send.button, options);
 
 			function send_ajax_form() {
 				var success = false;
