@@ -24,10 +24,10 @@ if (!function_exists('debug_sql_array')) {
 			unset($backtrace[0]);
 			$backtrace = array_merge($backtrace, array());
 
-			$GLOBALS['sql_array'][str_replace(realpath($_SERVER['DOCUMENT_ROOT']), '', $backtrace[1]['file'])][$backtrace[0]['line']] = array(
-				'sql' => $query,
-				'result' => $q,
-				'backtrace' => $backtrace,
+			$GLOBALS['sql_array'][str_replace(realpath($_SERVER['DOCUMENT_ROOT']), '', $backtrace[0]['file'])][$backtrace[0]['line']] = array(
+				'sql'		=> $sql,
+				'result'		=> $result,
+				'backtrace'	=> $backtrace,
 			);
 		}
 	}
@@ -46,10 +46,9 @@ if (!function_exists('debug_array')) {
 			$backtrace = debug_backtrace();
 			unset($backtrace[0]);
 			$backtrace = array_merge($backtrace, array());
-
-			$GLOBALS['#_DEBUG_ARRAY'][str_replace(realpath($_SERVER['DOCUMENT_ROOT']), '', $backtrace[1]['file'])][$name][$backtrace[0]['line']] = array(
-				'value' => $value,
-				'backtrace' => $backtrace,
+			$GLOBALS['#_DEBUG_ARRAY'][str_replace(realpath($_SERVER['DOCUMENT_ROOT']), '', $backtrace[0]['file'])][$name][$backtrace[0]['line']] = array(
+				'value'		=> $value,
+				'backtrace'	=> $backtrace,
 			);
 		}
 	}
