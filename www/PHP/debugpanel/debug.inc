@@ -18,12 +18,9 @@ if (!function_exists('debug_sql_array')) {
 	 * @param string $sql SQL запрос
 	 * @param mixed $result Результат SQL запроса
 	 */
-	function debug_sql_array($sql = '', $result = null) {
+	function debug_sql_array($sql = '', $result = null, $backtrace = null) {
 		if (!empty($_GET['debug'])) {
-			$backtrace = debug_backtrace();
-			unset($backtrace[0]);
-			$backtrace = array_merge($backtrace, array());
-
+			$backtrace = (!empty($backtrace)) ? $backtrace : debug_backtrace();
 			$GLOBALS['sql_array'][str_replace(realpath($_SERVER['DOCUMENT_ROOT']), '', $backtrace[0]['file'])][$backtrace[0]['line']] = array(
 				'sql'		=> $sql,
 				'result'		=> $result,
@@ -41,11 +38,9 @@ if (!function_exists('debug_array')) {
 	 * @param mixed $name Ключ массива
 	 * @param mixed $value Данные
 	 */
-	function debug_array($name = '', $value = null) {
+	function debug_array($name = '', $value = null, $backtrace = null) {
 		if (!empty($_GET['debug'])) {
-			$backtrace = debug_backtrace();
-			unset($backtrace[0]);
-			$backtrace = array_merge($backtrace, array());
+			$backtrace = (!empty($backtrace)) ? $backtrace : debug_backtrace();
 			$GLOBALS['#_DEBUG_ARRAY'][str_replace(realpath($_SERVER['DOCUMENT_ROOT']), '', $backtrace[0]['file'])][$name][$backtrace[0]['line']] = array(
 				'value'		=> $value,
 				'backtrace'	=> $backtrace,
