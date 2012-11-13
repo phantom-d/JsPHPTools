@@ -11,6 +11,51 @@ if (!defined('KELNIK'))
 if (!defined('IS_AJAX'))
 	define('IS_AJAX', (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'));
 
+if (!function_exists('debug_sql_array')) {
+
+	/**
+	 * Собирает массив SQL запросов, результатов и цепочки вызовов
+	 * @param string $sql SQL запрос
+	 * @param mixed $result Результат SQL запроса
+	 */
+	function debug_sql_array($sql = '', $result = null) {
+		if (!empty($_GET['debug'])) {
+			$backtrace = debug_backtrace();
+			unset($backtrace[0]);
+			$backtrace = array_merge($backtrace, array());
+
+			$GLOBALS['sql_array'][str_replace(realpath($_SERVER['DOCUMENT_ROOT']), '', $backtrace[1]['file'])][$backtrace[0]['line']] = array(
+				'sql' => $query,
+				'result' => $q,
+				'backtrace' => $backtrace,
+			);
+		}
+	}
+
+}
+
+if (!function_exists('debug_array')) {
+
+	/**
+	 * Собирает массив данных
+	 * @param mixed $name Ключ массива
+	 * @param mixed $value Данные
+	 */
+	function debug_array($name = '', $value = null) {
+		if (!empty($_GET['debug'])) {
+			$backtrace = debug_backtrace();
+			unset($backtrace[0]);
+			$backtrace = array_merge($backtrace, array());
+
+			$GLOBALS['#_DEBUG_ARRAY'][str_replace(realpath($_SERVER['DOCUMENT_ROOT']), '', $backtrace[1]['file'])][$name][$backtrace[0]['line']] = array(
+				'value' => $value,
+				'backtrace' => $backtrace,
+			);
+		}
+	}
+
+}
+
 if (KELNIK && !empty($_GET['debug'])) {
 	if (!defined('E_STRICT')) {
 		define('E_STRICT', 2048);
