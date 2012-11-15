@@ -40,11 +40,15 @@ if (!function_exists('debug_sql_array')) {
 			list($usec, $sec) = explode(" ", microtime());
 			$micro = substr((string)$usec, 1);
 			$d = date('H:i:s' . $micro, $sec);
-			$path = str_replace(realpath($_SERVER['DOCUMENT_ROOT']), '', $backtrace[0]['file']) . ': ' . $d;
+			$path = str_replace(realpath($_SERVER['DOCUMENT_ROOT']), '', $backtrace[0]['file']) . '<span style="display: none;">' . $d . '</span>';
 			if (!empty($session)) {
-				$_SESSION['sql_array'][$path][$backtrace[0]['line']] = $array;
+				if (!isset($_SESSION['sql_array']))
+					$_SESSION['sql_array'] = array();
+				$_SESSION['sql_array'][count($_SESSION['sql_array']) + 1 . '. ' . $path] = $array;
 			} else {
-				$GLOBALS['sql_array'][$path][$backtrace[0]['line']] = $array;
+				if (!isset($GLOBALS['sql_array']))
+					$GLOBALS['sql_array'] = array();
+				$GLOBALS['sql_array'][count($GLOBALS['sql_array']) + 1 . '. ' . $path] = $array;
 			}
 		}
 	}
@@ -69,11 +73,15 @@ if (!function_exists('debug_array')) {
 			list($usec, $sec) = explode(" ", microtime());
 			$micro = substr((string)$usec, 1);
 			$d = date('H:i:s' . $micro, $sec);
-			$path = str_replace(realpath($_SERVER['DOCUMENT_ROOT']), '', $backtrace[0]['file']) . ': ' . $d;
+			$path = str_replace(realpath($_SERVER['DOCUMENT_ROOT']), '', $backtrace[0]['file']) . '<span style="display: none;">' . $d . '</span>';
 			if (!empty($session)) {
-				$_SESSION['debug_array'][$path][$name][$backtrace[0]['line']][] = $array;
+				if (!isset($_SESSION['debug_array']))
+					$_SESSION['debug_array'] = array();
+				$_SESSION['debug_array'][count($_SESSION['debug_array']) + 1 . '. ' . $path] = $array;
 			} else {
-				$GLOBALS['debug_array'][$path][$name][$backtrace[0]['line']][] = $array;
+				if (!isset($GLOBALS['debug_array']))
+					$GLOBALS['debug_array'] = array();
+				$GLOBALS['debug_array'][count($GLOBALS['debug_array']) + 1 . '. ' . $path] = $array;
 			}
 		}
 	}
