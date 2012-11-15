@@ -1,8 +1,6 @@
 <?php
-putenv('TZ=Europe/Moscow');
 if (!empty($_SESSION['passvars']['user_name']) && $_SESSION['passvars']['user_name'] == 'antoner') {
 	$_GET['debug'] = true;
-	define('KELNIK', true);
 }
 if (!defined('KELNIK'))
 	define('KELNIK', ($_SERVER['REMOTE_ADDR'] == '84.52.126.180' || !empty($_GET['kelnik'])));
@@ -18,16 +16,23 @@ if (!function_exists('debug_sql_array')) {
 	 * @param string $sql SQL запрос
 	 * @param mixed $result Результат SQL запроса
 	 * @param mixed $backtrace Результат функции debug_backtrace() для вставки в часто используемые функции
-	 *	чтобы отследить откуда был вызов
+	 * 	чтобы отследить откуда был вызов
 	 */
-	function debug_sql_array($sql = '', $result = null, $backtrace = null) {
+	function debug_sql_array($sql = '', $result = null, $backtrace = null, $session = false) {
 		if (!empty($_GET['debug'])) {
 			$backtrace = (!empty($backtrace)) ? $backtrace : debug_backtrace();
-			$GLOBALS['sql_array'][str_replace(realpath($_SERVER['DOCUMENT_ROOT']), '', $backtrace[0]['file'])][$backtrace[0]['line']] = array(
-				'sql'		=> $sql,
-				'result'		=> $result,
-				'backtrace'	=> $backtrace,
+			$array = array(
+				'sql' => $sql,
+				'result' => $result,
+				'backtrace' => $backtrace,
 			);
+			if (!empty($session)) {
+				if (isset($_SESSION['sql_array']))
+					unset($_SESSION['sql_array']);
+				$_SESSION['sql_array'][str_replace(realpath($_SERVER['DOCUMENT_ROOT']), '', $backtrace[0]['file'])][$backtrace[0]['line']] = $array;
+			} else {
+				$GLOBALS['sql_array'][str_replace(realpath($_SERVER['DOCUMENT_ROOT']), '', $backtrace[0]['file'])][$backtrace[0]['line']] = $array;
+			}
 		}
 	}
 
@@ -40,15 +45,22 @@ if (!function_exists('debug_array')) {
 	 * @param mixed $name Ключ массива
 	 * @param mixed $value Данные
 	 * @param mixed $backtrace Результат функции debug_backtrace() для вставки в часто используемые функции
-	 *	чтобы отследить откуда был вызов
+	 * 	чтобы отследить откуда был вызов
 	 */
-	function debug_array($name = '', $value = null, $backtrace = null) {
+	function debug_array($name = '', $value = null, $backtrace = null, $session = false) {
 		if (!empty($_GET['debug'])) {
 			$backtrace = (!empty($backtrace)) ? $backtrace : debug_backtrace();
-			$GLOBALS['debug_array'][str_replace(realpath($_SERVER['DOCUMENT_ROOT']), '', $backtrace[0]['file'])][$name][$backtrace[0]['line']] = array(
-				'value'		=> $value,
-				'backtrace'	=> $backtrace,
+			$array = array(
+				'value' => $value,
+				'backtrace' => $backtrace,
 			);
+			if (!empty($session)) {
+				if (isset($_SESSION['debug_array']))
+					unset($_SESSION['debug_array']);
+				$_SESSION['debug_array'][str_replace(realpath($_SERVER['DOCUMENT_ROOT']), '', $backtrace[0]['file'])][$name][$backtrace[0]['line']] = $array;
+			} else {
+				$GLOBALS['debug_array'][str_replace(realpath($_SERVER['DOCUMENT_ROOT']), '', $backtrace[0]['file'])][$name][$backtrace[0]['line']] = $array;
+			}
 		}
 	}
 
@@ -70,7 +82,7 @@ if (KELNIK && !empty($_GET['debug'])) {
 
 	// Обрабатываются все возможные ошибки
 	error_reporting(-1);
-	ini_set('display_errors', (int)(isset($_GET['display'])));
+	ini_set('display_errors', 0);
 
 	if (!function_exists('debug_panel')) {
 
@@ -96,16 +108,26 @@ if (KELNIK && !empty($_GET['debug'])) {
 				if (!empty($GLOBALS['debug_array'])) {
 					$debug_panel->debug['#_DEBUG_ARRAY'] = $GLOBALS['debug_array'];
 				}
-				$debug_panel->debug['get_included_files'] = get_included_files();
-				if (version_compare(phpversion(), '5.0.0') >= 0) {
-					$constants = get_defined_constants(true);
-					$constants = $constants['user'];
-				} else {
-					$constants = get_defined_constants();
+				if (!empty($_SESSION['sql_array'])) {
+					$debug_panel->debug['$_SQL_ARRAY'] = $_SESSION['sql_array'];
 				}
-				$debug_panel->debug['get_defined_constants'] = $constants;
+				if (!empty($_SESSION['debug_array'])) {
+					$debug_panel->debug['$_DEBUG_ARRAY'] = $_SESSION['debug_array'];
+				}
+				$debug_panel->debug['get_included_files'] = get_included_files();
+				if (isset($_GET['const'])) {
+					if (version_compare(phpversion(), '5.0.0') >= 0) {
+						$constants = get_defined_constants(true);
+						$constants = $constants['user'];
+					} else {
+						$constants = get_defined_constants();
+					}
+					$debug_panel->debug['get_defined_constants'] = $constants;
+				}
 				$debug_panel->debug['#php_version'] = phpversion();
-				$debug_panel->debug['$php_config'] = ini_get_all();
+				if (isset($_GET['config'])) {
+					$debug_panel->debug['$php_config'] = ini_get_all();
+				}
 				$debug_panel->debugPanel(
 					array(
 						'globals' => true,
