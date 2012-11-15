@@ -1,6 +1,7 @@
 <?php
 if (!empty($_SESSION['passvars']['user_name']) && $_SESSION['passvars']['user_name'] == 'antoner') {
 	$_GET['debug'] = true;
+	define('KELNIK', true);
 }
 if (!defined('KELNIK'))
 	define('KELNIK', ($_SERVER['REMOTE_ADDR'] == '84.52.126.180' || !empty($_GET['kelnik'])));
@@ -8,6 +9,16 @@ if (!defined('KELNIK'))
 // Идет ли запрос посредством AJAX
 if (!defined('IS_AJAX'))
 	define('IS_AJAX', (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'));
+
+
+if (isset($_SESSION['sql_array']))
+	unset($_SESSION['sql_array']);
+if (isset($sql_array))
+	unset($sql_array);
+if (isset($_SESSION['debug_array']))
+	unset($_SESSION['debug_array']);
+if (isset($debug_array))
+	unset($debug_array);
 
 if (!function_exists('debug_sql_array')) {
 
@@ -19,19 +30,21 @@ if (!function_exists('debug_sql_array')) {
 	 * 	чтобы отследить откуда был вызов
 	 */
 	function debug_sql_array($sql = '', $result = null, $backtrace = null, $session = false) {
-		if (!empty($_GET['debug'])) {
+		if (KELNIK && !empty($_GET['debug'])) {
 			$backtrace = (!empty($backtrace)) ? $backtrace : debug_backtrace();
 			$array = array(
 				'sql' => $sql,
 				'result' => $result,
 				'backtrace' => $backtrace,
 			);
+			list($usec, $sec) = explode(" ", microtime());
+			$micro = substr((string)$usec, 1);
+			$d = date('H:i:s' . $micro, $sec);
+			$path = str_replace(realpath($_SERVER['DOCUMENT_ROOT']), '', $backtrace[0]['file']) . ': ' . $d;
 			if (!empty($session)) {
-				if (isset($_SESSION['sql_array']))
-					unset($_SESSION['sql_array']);
-				$_SESSION['sql_array'][str_replace(realpath($_SERVER['DOCUMENT_ROOT']), '', $backtrace[0]['file'])][$backtrace[0]['line']] = $array;
+				$_SESSION['sql_array'][$path][$backtrace[0]['line']] = $array;
 			} else {
-				$GLOBALS['sql_array'][str_replace(realpath($_SERVER['DOCUMENT_ROOT']), '', $backtrace[0]['file'])][$backtrace[0]['line']] = $array;
+				$GLOBALS['sql_array'][$path][$backtrace[0]['line']] = $array;
 			}
 		}
 	}
@@ -39,7 +52,6 @@ if (!function_exists('debug_sql_array')) {
 }
 
 if (!function_exists('debug_array')) {
-
 	/**
 	 * Собирает массив данных
 	 * @param mixed $name Ключ массива
@@ -48,18 +60,20 @@ if (!function_exists('debug_array')) {
 	 * 	чтобы отследить откуда был вызов
 	 */
 	function debug_array($name = '', $value = null, $backtrace = null, $session = false) {
-		if (!empty($_GET['debug'])) {
+		if (KELNIK && !empty($_GET['debug'])) {
 			$backtrace = (!empty($backtrace)) ? $backtrace : debug_backtrace();
 			$array = array(
 				'value' => $value,
 				'backtrace' => $backtrace,
 			);
+			list($usec, $sec) = explode(" ", microtime());
+			$micro = substr((string)$usec, 1);
+			$d = date('H:i:s' . $micro, $sec);
+			$path = str_replace(realpath($_SERVER['DOCUMENT_ROOT']), '', $backtrace[0]['file']) . ': ' . $d;
 			if (!empty($session)) {
-				if (isset($_SESSION['debug_array']))
-					unset($_SESSION['debug_array']);
-				$_SESSION['debug_array'][str_replace(realpath($_SERVER['DOCUMENT_ROOT']), '', $backtrace[0]['file'])][$name][$backtrace[0]['line']] = $array;
+				$_SESSION['debug_array'][$path][$name][$backtrace[0]['line']][] = $array;
 			} else {
-				$GLOBALS['debug_array'][str_replace(realpath($_SERVER['DOCUMENT_ROOT']), '', $backtrace[0]['file'])][$name][$backtrace[0]['line']] = $array;
+				$GLOBALS['debug_array'][$path][$name][$backtrace[0]['line']][] = $array;
 			}
 		}
 	}
