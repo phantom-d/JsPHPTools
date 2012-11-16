@@ -10,7 +10,6 @@ if (!defined('KELNIK'))
 if (!defined('IS_AJAX'))
 	define('IS_AJAX', (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'));
 
-
 if (isset($_SESSION['sql_array']))
 	unset($_SESSION['sql_array']);
 if (isset($sql_array))
