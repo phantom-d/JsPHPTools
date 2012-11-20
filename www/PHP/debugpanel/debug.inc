@@ -23,12 +23,14 @@ if (!function_exists('debug_sql_array')) {
 
 	/**
 	 * Собирает массив SQL запросов, результатов и цепочки вызовов
+	 * @param string $name Наименование
 	 * @param string $sql SQL запрос
 	 * @param mixed $result Результат SQL запроса
 	 * @param mixed $backtrace Результат функции debug_backtrace() для вставки в часто используемые функции
 	 * 	чтобы отследить откуда был вызов
+	 * @param mixed $session Запись результата в сессию
 	 */
-	function debug_sql_array($sql = '', $result = null, $backtrace = null, $session = false) {
+	function debug_sql_array($name = '', $sql = '', $result = null, $backtrace = null, $session = false) {
 		if (KELNIK && !empty($_GET['debug'])) {
 			$backtrace = (!empty($backtrace)) ? $backtrace : debug_backtrace();
 			$array = array(
@@ -39,7 +41,7 @@ if (!function_exists('debug_sql_array')) {
 			list($usec, $sec) = explode(" ", microtime());
 			$micro = substr((string)$usec, 1);
 			$d = date('H:i:s' . $micro, $sec);
-			$path = str_replace(realpath($_SERVER['DOCUMENT_ROOT']), '', $backtrace[0]['file']) . '<span style="display: none;">' . $d . '</span>';
+			$path = str_replace(realpath($_SERVER['DOCUMENT_ROOT']), '', $backtrace[0]['file']) . (!empty($name) ? ': ' . $name : '') . '<span style="display: none;">' . $d . '</span>';
 			if (!empty($session)) {
 				if (!isset($_SESSION['sql_array']))
 					$_SESSION['sql_array'] = array();
@@ -61,6 +63,7 @@ if (!function_exists('debug_array')) {
 	 * @param mixed $value Данные
 	 * @param mixed $backtrace Результат функции debug_backtrace() для вставки в часто используемые функции
 	 * 	чтобы отследить откуда был вызов
+	 * @param mixed $session Запись результата в сессию
 	 */
 	function debug_array($name = '', $value = null, $backtrace = null, $session = false) {
 		if (KELNIK && !empty($_GET['debug'])) {
@@ -72,7 +75,7 @@ if (!function_exists('debug_array')) {
 			list($usec, $sec) = explode(" ", microtime());
 			$micro = substr((string)$usec, 1);
 			$d = date('H:i:s' . $micro, $sec);
-			$path = str_replace(realpath($_SERVER['DOCUMENT_ROOT']), '', $backtrace[0]['file']) . '<span style="display: none;">' . $d . '</span>';
+			$path = str_replace(realpath($_SERVER['DOCUMENT_ROOT']), '', $backtrace[0]['file']) . (!empty($name) ? ': ' . $name : '') . '<span style="display: none;">' . $d . '</span>';
 			if (!empty($session)) {
 				if (!isset($_SESSION['debug_array']))
 					$_SESSION['debug_array'] = array();
@@ -103,7 +106,7 @@ if (KELNIK && !empty($_GET['debug'])) {
 
 	// Обрабатываются все возможные ошибки
 	error_reporting(-1);
-	ini_set('display_errors', 0);
+	ini_set('display_errors', isset($_GET['display']));
 
 	if (!function_exists('debug_panel')) {
 
