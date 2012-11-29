@@ -3,7 +3,7 @@
 /**
  * Класс для сбора и вывода информации в отдельную панель
  * @author Anton Ermolovich <anton.ermolovich@gmail.com>
- * @version 1.6
+ * @version 1.7
  */
 class Debug {
 
@@ -12,6 +12,12 @@ class Debug {
 	 * @var boolean
 	 */
 	var $debug_log = false;
+
+	/**
+	 * Ключи, которые должныбыть удалены из глобального массива
+	 * @var mixed
+	 */
+	var $unset_keys = array();
 
 	/**
 	 * Данные для отображения
@@ -53,10 +59,10 @@ class Debug {
 		'&rbrack;',
 	);
 
-	function Debug() {
+	function __construct() {
 		if (phpversion() >= 5.2) {
-			ini_set('pcre.backtrack_limit', 1000000000);
-			ini_set('pcre.recursion_limit', 1000000000);
+			ini_set('pcre.backtrack_limit', '1000M');
+			ini_set('pcre.recursion_limit', '1000M');
 		}
 	}
 
@@ -98,6 +104,12 @@ class Debug {
 			foreach (array_keys($array) as $key) {
 				if (isset($array_globals[$key]))
 					unset($array_globals[$key]);
+			}
+			if (!empty($this->unset_keys)) {
+				foreach ((array)$this->unset_keys as $key) {
+					if (isset($array_globals[$key]))
+						unset($array_globals[$key]);
+				}
 			}
 			ksort($array_globals, $ksort);
 			if (count($array)) {
