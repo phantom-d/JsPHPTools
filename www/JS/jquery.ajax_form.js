@@ -1,5 +1,5 @@
 /**
- * jQuery AJAX Form
+ * jQuery AJAX Form Test
  * @version 2.21
  **/
 (function ($, undefined) {
