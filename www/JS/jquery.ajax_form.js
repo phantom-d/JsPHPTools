@@ -74,13 +74,13 @@
 		}
 	}
 	$.fn._ajax_form = function (params) {
-		if (params.sendPath === undefined) {
+		if (typeof params.sendPath == 'undefined') {
 			var sendPath = $(this).attr('action');
 			params = $.extend(params, {
 				'sendPath' : (!sendPath) ? $._ajax_form.defaults.sendPath : sendPath
 			});
 		}
-		if (params.type === undefined) {
+		if (typeof params.type == 'undefined') {
 			var type = $(this).attr('method');
 			params = $.extend(params, {
 				'type' : (!type) ? $._ajax_form.defaults.type : type
@@ -205,7 +205,7 @@
 					}
 				} else {
 					if (options.scrollToFirstError && options.scrollTo.length) {
-						$._ajax_form.scrollToObject(options.scrollTo, options.scrollSpeed, options.scrollTopAdd);
+						options.scrollToObject(options.scrollTo, options.scrollSpeed, options.scrollTopAdd);
 					}
 					send.button.removeAttr('disabled');
 					return false;
@@ -292,7 +292,7 @@
 						} else {
 							value_symbol = value.replace(/[^a-zа-я?*!'?;%:+<>/\|=_,`~]/ig, '');
 						}
-						min_max = $._ajax_form.remove_empty(min_max),
+						min_max = options.remove_empty(min_max),
 						phone_default = $.extend(phone_default, min_max);
 						if (value != '' && (!value.match(options.regexp.phone) || value_digits.length < parseInt(phone_default[0]) || value_digits.length > parseInt(phone_default[1]))) {
 							surroundingElement.removeClass('valid');
