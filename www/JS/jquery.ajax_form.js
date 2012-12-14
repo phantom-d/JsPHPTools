@@ -130,9 +130,15 @@
 							var text = '',
 							content = '';
 							if (options.dataType == 'json') {
-								text = (response.error.length == 0) ?
-											'<div class="message">' + response.message + '</div>' :
-											'<div class="error">' + response.error + (typeof (response.debug) != 'undefined' ? response.debug : '') + '</div>';
+								if (response.error.length == 0) {
+									text = '<div class="message">' + response.message + '</div>';
+								} else {
+									$.each(response.error, function(i, v){
+										text += '<div class="error">' + v + '</div>';
+									});
+									if (typeof (response.debug) != 'undefined' && response.debug != '')
+										text += '<div class="error">' + response.debug + '</div>';
+								}
 							} else {
 								text = response;
 							}
