@@ -32,11 +32,16 @@ if (!function_exists('debug_sql_array')) {
 	 */
 	function debug_sql_array($name = '', $sql = '', $result = null, $backtrace = null, $session = false) {
 		if (KELNIK && !empty($_GET['debug'])) {
-			$backtrace = (!empty($backtrace)) ? $backtrace : debug_backtrace();
+			if (empty($backtrace) && !is_null($backtrace)) {
+				$backtrace = debug_backtrace();
+				$_backtrace = null;
+			} else {
+				$_backtrace = (!empty($backtrace)) ? $backtrace : debug_backtrace();
+			}
 			$array = array(
 				'sql' => $sql,
 				'result' => $result,
-				'backtrace' => $backtrace,
+				'backtrace' => $_backtrace,
 			);
 			list($usec, $sec) = explode(" ", microtime());
 			$micro = substr((string)$usec, 1);
@@ -67,10 +72,15 @@ if (!function_exists('debug_array')) {
 	 */
 	function debug_array($name = '', $value = null, $backtrace = null, $session = false) {
 		if (KELNIK && !empty($_GET['debug'])) {
-			$backtrace = (!empty($backtrace)) ? $backtrace : debug_backtrace();
+			if (empty($backtrace) && !is_null($backtrace)) {
+				$backtrace = debug_backtrace();
+				$_backtrace = null;
+			} else {
+				$_backtrace = (!empty($backtrace)) ? $backtrace : debug_backtrace();
+			}
 			$array = array(
 				'value' => $value,
-				'backtrace' => $backtrace,
+				'backtrace' => $_backtrace,
 			);
 			list($usec, $sec) = explode(" ", microtime());
 			$micro = substr((string)$usec, 1);
