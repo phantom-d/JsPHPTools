@@ -4,7 +4,7 @@ if (!empty($_SESSION['passvars']['user_name']) && $_SESSION['passvars']['user_na
 	define('KELNIK', true);
 }
 if (!defined('KELNIK'))
-	define('KELNIK', ($_SERVER['REMOTE_ADDR'] == '84.52.126.180' || !empty($_GET['kelnik'])));
+	define('KELNIK', ($_SERVER['REMOTE_ADDR'] == '109.167.217.204' || !empty($_GET['kelnik'])));
 
 // Идет ли запрос посредством AJAX
 if (!defined('IS_AJAX'))
