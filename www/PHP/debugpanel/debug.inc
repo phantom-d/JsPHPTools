@@ -138,15 +138,19 @@ if (KELNIK && !empty($_GET['debug'])) {
 				}
 				if (!empty($GLOBALS['sql_array'])) {
 					$debug_panel->debug['#_SQL_ARRAY'] = $GLOBALS['sql_array'];
+					$debug_panel->unset_keys = 'sql_array';
 				}
 				if (!empty($GLOBALS['debug_array'])) {
 					$debug_panel->debug['#_DEBUG_ARRAY'] = $GLOBALS['debug_array'];
+					$debug_panel->unset_keys = 'debug_array';
 				}
 				if (!empty($_SESSION['sql_array'])) {
 					$debug_panel->debug['$_SQL_ARRAY'] = $_SESSION['sql_array'];
+					$debug_panel->unset_keys = 'sql_array';
 				}
 				if (!empty($_SESSION['debug_array'])) {
 					$debug_panel->debug['$_DEBUG_ARRAY'] = $_SESSION['debug_array'];
+					$debug_panel->unset_keys = 'debug_array';
 				}
 				$debug_panel->debug['get_included_files'] = get_included_files();
 				if (isset($_GET['const'])) {
