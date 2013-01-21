@@ -189,6 +189,8 @@ if (KELNIK && !empty($_GET['debug'])) {
 	if (!function_exists('myErrorHandler')) {
 
 		function myErrorHandler($type, $message, $file, $line) {
+			if (E_STRICT == $type)
+				return true;
 			// Описания типов ошибок
 			global $php_errors;
 
