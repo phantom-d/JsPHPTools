@@ -3,7 +3,7 @@
 /**
  * Класс для сбора и вывода информации в отдельную панель
  * @author Anton Ermolovich <anton.ermolovich@gmail.com>
- * @version 1.7
+ * @version 1.71
  */
 class Debug {
 
@@ -241,7 +241,7 @@ class Debug {
 		}
 		foreach ($data as $key => $item) {
 			$string .= $this->add_tabs($level);
-			$string .= '["' . $key . '"]=> ';
+			$string .= '["' . str_replace(array("\r\n", "\n", '  '), ' ', $key) . '"]=> ';
 			if (is_bool($item) || is_null($item)) {
 				ob_start();
 				var_dump($item);
