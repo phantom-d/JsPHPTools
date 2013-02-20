@@ -1,6 +1,6 @@
 /**
  * jQuery AJAX Form
- * @version 2.21
+ * @version 2.22
  **/
 (function ($, undefined) {
 	$._ajax_form = {
@@ -103,7 +103,12 @@
 			}
 			if (typeof options.before == 'function')
 				options.before.call(this, form, send.formElements, send.button, options);
-			send.formElements.filter(':not(select)').keyup(checkElement);
+			
+			var filter = ':not(select)';
+			if (options.useMaskedPhone) {
+				filter += ':not(.is_phone)';
+			}
+			send.formElements.filter(filter).keyup(checkElement);
 			send.formElements.filter('select').change(checkElement);
 			send.button.click(checkElementsToSend);
 
