@@ -1,6 +1,6 @@
 /**
  * jQuery AJAX Form
- * @version 2.24
+ * @version 2.25
  **/
 (function ($, undefined) {
 	$._ajax_form = {
@@ -263,6 +263,17 @@
 						} else {
 							surroundingElement.addClass('valid');
 							validElement = true;
+						}
+					}
+					if (classes.match(/is_digital/i)) {
+						value = value.replace(/[^0-9]/g, '')
+						currentElement.val(value);
+						if (classes.match(/is_empty/i) && (value == '' || value == 0)) {
+							surroundingElement.removeClass('valid');
+							surroundingElement.addClass('error');
+							surroundingElement.addClass('type0');
+							send.validationError = true;
+							validElement = false;
 						}
 					}
 					if (classes.match(/is_text/i)) {
