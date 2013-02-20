@@ -1,6 +1,6 @@
 /**
  * jQuery AJAX Form
- * @version 2.22
+ * @version 2.23
  **/
 (function ($, undefined) {
 	$._ajax_form = {
@@ -86,6 +86,9 @@
 				'type' : (!type) ? $._ajax_form.defaults.type : type
 			});
 		}
+		if (params.regexp) {
+			params.regexp = $.extend({}, $._ajax_form.defaults.regexp, params.regexp);
+		}
 		var options = $.extend({}, $._ajax_form.defaults, params);
 
 		return $(this).each(function () {
@@ -103,7 +106,7 @@
 			}
 			if (typeof options.before == 'function')
 				options.before.call(this, form, send.formElements, send.button, options);
-			
+
 			var filter = ':not(select)';
 			if (options.useMaskedPhone) {
 				filter += ':not(.is_phone)';
