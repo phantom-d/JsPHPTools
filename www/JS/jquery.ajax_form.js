@@ -1,6 +1,6 @@
 /**
  * jQuery AJAX Form
- * @version 2.23
+ * @version 2.24
  **/
 (function ($, undefined) {
 	$._ajax_form = {
@@ -97,7 +97,8 @@
 				formElements		: form.find('textarea, select, input[type="text"], input[type="hidden"], input[type="password"]'),
 				validationError	: false,
 				button			: form.find('input[type="submit"], button[type="submit"]'),
-				datastring		: ''
+				datastring		: '',
+				fullCheck			: false
 			}
 			if (options.useMaskedPhone) {
 				send.formElements.filter('.is_phone').each(function () {
@@ -182,6 +183,7 @@
 				// reset validation var and send data
 				options.scrollTo = {};
 				send.validationError = false;
+				send.fullCheck = true;
 				send.datastring = 'ajax=1';
 				if (typeof options.beforeCheck == 'function')
 					send.validationError = options.beforeCheck.call(this, send.validationError, send.formElements, options, form);
@@ -208,6 +210,7 @@
 				});
 				if (typeof options.afterCheck == 'function')
 					send.validationError = options.afterCheck.call(this, send.validationError, send.formElements, options, form);
+				send.fullCheck = false;
 				if (!send.validationError) {
 					if (options.send_ajax) {
 						send_ajax_form();
@@ -233,6 +236,8 @@
 				validElement = false,
 				surroundingElement = currentElement.parent(),
 				classes = currentElement.attr('class');
+				if (!send.fullCheck)
+					send.validationError = false;
 				surroundingElement.removeClass(options.classes_valid);
 				if (typeof options.beforeCheckElement == 'function') {
 					send.validationError = options.beforeCheckElement.call(this, send.validationError, surroundingElement, currentElement, send.formElements, options);
@@ -246,8 +251,7 @@
 						}
 					}
 				}
-				var value = $.trim(currentElement.val());
-				currentElement.val(value);
+				var value = currentElement.val();
 				if (classes) {
 					if (classes.match(/is_empty/i)) {
 						if (value == '') {
