@@ -1,6 +1,6 @@
 /**
  * jQuery AJAX Form
- * @version 2.25
+ * @version 2.27
  **/
 (function ($, undefined) {
 	$._ajax_form = {
@@ -108,12 +108,12 @@
 			if (typeof options.before == 'function')
 				options.before.call(this, form, send.formElements, send.button, options);
 
-			var filter = ':not(select)';
+			var filter = ':not(select):not(.on_change)';
 			if (options.useMaskedPhone) {
 				filter += ':not(.is_phone)';
 			}
 			send.formElements.filter(filter).keyup(checkElement);
-			send.formElements.filter('select').change(checkElement);
+			send.formElements.filter('select, .on_change').change(checkElement);
 			send.button.click(checkElementsToSend);
 
 			if (typeof options.after == 'function')
@@ -265,10 +265,21 @@
 							validElement = true;
 						}
 					}
-					if (classes.match(/is_digital/i)) {
-						value = value.replace(/[^0-9]/g, '')
+					if (classes.match(/is_int/i)) {
+						value = value.replace(/[^0-9]/g, '');
 						currentElement.val(value);
-						if (classes.match(/is_empty/i) && (value == '' || value == 0)) {
+						if (classes.match(/is_empty/i) && (value == '' || parseInt(value) == 0)) {
+							surroundingElement.removeClass('valid');
+							surroundingElement.addClass('error');
+							surroundingElement.addClass('type0');
+							send.validationError = true;
+							validElement = false;
+						}
+					}
+					if (classes.match(/is_float/i)) {
+						value = value.replace(/[^0-9,.]/g, '').replace(',', '.');
+						currentElement.val(value);
+						if (classes.match(/is_empty/i) && (value == '' || parseFloat(value) == 0)) {
 							surroundingElement.removeClass('valid');
 							surroundingElement.addClass('error');
 							surroundingElement.addClass('type0');
