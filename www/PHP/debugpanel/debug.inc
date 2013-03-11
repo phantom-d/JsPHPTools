@@ -36,7 +36,8 @@ if (!function_exists('debug_sql_array')) {
 				$backtrace = debug_backtrace();
 				$_backtrace = null;
 			} else {
-				$_backtrace = (!empty($backtrace)) ? $backtrace : debug_backtrace();
+				$backtrace = (!empty($backtrace)) ? $backtrace : debug_backtrace();
+				$_backtrace = $backtrace;
 			}
 			$array = array(
 				'sql' => $sql,
