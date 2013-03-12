@@ -77,7 +77,8 @@ if (!function_exists('debug_array')) {
 				$backtrace = debug_backtrace();
 				$_backtrace = null;
 			} else {
-				$_backtrace = (!empty($backtrace)) ? $backtrace : debug_backtrace();
+				$backtrace = (!empty($backtrace)) ? $backtrace : debug_backtrace();
+				$_backtrace = $backtrace;
 			}
 			$array = array(
 				'value' => $value,
