@@ -2,7 +2,7 @@
  * Смена внешнего вида кнопок
  * @author Ermolovich Anton Viktorovich <anton.ermolovich@gmail.com>
  * @package Change buttons
- * @version 1.1
+ * @version 1.21
  * @example
 		<script type="text/javascript">
 			jQuery(document).ready(function(){
@@ -26,6 +26,20 @@
 		<input type="submit" class="button" value="This is the button"/>
  */
 (function($, undefined){
+	var $temp = $('<div style="background:none;display:none;"/>').appendTo('body');
+	var transparent = $temp.css('backgroundColor');
+	$temp.remove();
+
+	$.fn.bkgcolor = function( fallback ) {
+		function test( $elem ) {
+			if ( $elem.css('backgroundColor') == transparent ) {
+				return !$elem.is('body') ? test( $elem.parent() ) : fallback || transparent ;
+			} else {
+				return $elem.css('backgroundColor');
+			}
+		}
+		return test( $(this) );
+	};
 	$.fn.change_buttons = function(params) {
 		var defaults = {
 			'image'		: '/images/button.png',
@@ -73,13 +87,21 @@
 					img_left = $('<span/>'),
 					img_center = $('<span/>'),
 					img_right = $('<span/>'),
+					img_text = $('<span/>'),
 					currentAttr = currentButton.operations.getAttributes(),
 					value = '',
-					width = 'auto';
+					width = 'auto',
+					backgroundColor = $(currentButton).bkgcolor();
+					if (backgroundColor == 'transparent')
+						backgroundColor = '#FFF';
+
 					if (options.html_tag === 'button') {
 						value = (currentAttr.value !== undefined) ? currentAttr.value : '';
+						value = img_text.addClass('buttonText').html(value);
 					} else {
-						value = $(currentButton).text();
+						value = $(currentButton).html();
+						$(currentButton).html(img_text.addClass('buttonText').html(value));
+						value = $(currentButton).html();
 						width = $(currentButton).width();
 					}
 					var disable = (currentAttr.disabled !== undefined) ? 1 : 0,
@@ -87,11 +109,13 @@
 					mDown = true,
 					offset_top = "-" + (parseInt(options.height, 10) * parseInt(options.state.normal, 10)) + "px",
 					offset_top_center = "-" + ((parseInt(options.height, 10) * parseInt(options.state.normal, 10)) + (parseInt(options.height, 10) * 4)) + "px";
-
 					$.each(currentAttr, function(i, v) {
 						replacementButton.attr(i, v);
 					});
 					replacementButton.css({
+						'cursor'		: 'pointer',
+						'display'		: 'block',
+						'width'		: width,
 						'border'		: '0 none',
 						'background'	: 'none transparent'
 					});
@@ -104,7 +128,7 @@
 						'backgroundRepeat'	: "no-repeat",
 						'backgroundPosition': "0px " + offset_top,
 						'margin'		: '0px'
-					}).attr('class', 'buttonLeft');
+					}).addClass('buttonLeft');
 					img_right.css({
 						'display'		: 'block',
 						'height'		: options.height + 'px',
@@ -116,16 +140,17 @@
 						'backgroundPosition': "-" + options.left_width + "px " + offset_top,
 						'padding'		: '0px',
 						'margin'		: '0px'
-					}).attr('class', 'buttonRight');
+					}).addClass('buttonRight');
 					img_center.css({
 						'display'		: 'block',
 						'line-height'	: options.height + 'px',
+						'backgroundColor'	: backgroundColor,
 						'backgroundImage'	: "url(" + options.image + ")",
 						'backgroundRepeat'	: "repeat-x",
 						'backgroundPosition': "0px " + offset_top_center,
 						'padding'		: '0px',
 						'margin'		: '0px'
-					}).attr('class', 'buttonCenter').text(value);
+					}).addClass('buttonCenter').html(value);
 
 					if (disable == 0) {
 						$(document).mouseup(function(){
