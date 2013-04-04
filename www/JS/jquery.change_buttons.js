@@ -2,59 +2,55 @@
  * Смена внешнего вида кнопок
  * @author Ermolovich Anton Viktorovich <anton.ermolovich@gmail.com>
  * @package Change buttons
- * @version 1.01
+ * @version 1.1
  * @example
- * 		<script type="text/javascript">
- * 			jQuery(document).ready(function(){
- * 				jQuery('.button').change_buttons({
- * 					image		: '/images/button.png',
- * 					left_width	: 15,
- * 					right_width	: 15,
- * 					height		: 30,
- * 					type			: 'submit',
- * 					change_type	: false,
- * 					callback		: function(){},
- * 					state		: {
- * 						normal	: 0,
- * 						over		: 1,
- * 						active	: 2,
- * 						disable	: 3
- * 					}
- * 				});
- * 			});
- * 		</script>
- * 		<input type="submit" class="button" value="This is the button"/>
+		<script type="text/javascript">
+			jQuery(document).ready(function(){
+				jQuery('.button').change_buttons({
+					image		: '/images/button.png',
+					left_width	: 15,
+					right_width	: 15,
+					height		: 30,
+					type			: 'submit',
+					change_type	: false,
+					callback		: function(){},
+					state		: {
+						normal	: 0,
+						over		: 1,
+						active	: 2,
+						disable	: 3
+					}
+				});
+			});
+		</script>
+		<input type="submit" class="button" value="This is the button"/>
  */
 (function($, undefined){
-	$.fn.change_buttons = function(options) {
+	$.fn.change_buttons = function(params) {
 		var defaults = {
-			image		: '/images/button.png',
-			left_width	: 0,
-			right_width	: 0,
-			height		: 0,
-			type			: 'submit',
-			change_type	: false,
-			single_image	: false,
-			single_width	: 0,
+			'image'		: '/images/button.png',
+			'left_width'	: 0,
+			'right_width'	: 0,
+			'height'		: 0,
+			'html_tag'	: 'button',
+			'allowed_tags'	: ['a', 'button'],
+			'type'		: 'submit',
+			'change_type'	: false,
+			'single_image'	: false,
+			'single_width'	: 0,
 			//callback		: function(){},
 			state		: {
-				normal	: 0,
-				over		: 1,
-				active	: 2,
-				disable	: 3
+				'normal'	: 0,
+				'over'	: 1,
+				'active'	: 2,
+				'disable'	: 3
 			}
 		};
-		$.each(defaults, function(i, v){
-			if (i == 'state') {
-				$.each(v, function(is, vs){
-					if (options[i] === undefined) options[i] = {};
-					if (options[i][is] === undefined) options[i][is] = vs;
-				});
-			} else {
-				if (options[i] === undefined) options[i] = v;
-			}
-		});
-		
+		var options = $.extend({}, defaults, params);
+		if ($.inArray(options.html_tag, defaults.allowed_tags) === -1) {
+			options.html_tag = 'button';
+		}
+
 		return this.each(function(){
 			var currentButton = $(this);
 			currentButton.operations = {
@@ -64,22 +60,29 @@
 					attr = ["abort","blur","change","click","dblclick","error","focus","keydown","keypress","keyup","load","mousedown","mousemove","mouseout","mouseover","mouseup","reset","resize","select","submit","unload"],
 					listAttr = {};
 					$.each(curAttr, function(i, v){
-						if($.inArray(v.nodeName.replace(/^on/,""), attr) == -1){
+						if($.inArray(v.nodeName.replace(/^on/,""), attr) === -1){
 							listAttr[v.nodeName] = v.nodeValue;
 						}
 					});
-					if (listAttr['type'] == undefined) listAttr['type'] = options.type;
-					if (options.change_type) listAttr['type'] = options.change_type;
+					if (options.html_tag === 'button' && listAttr['type'] === undefined) listAttr['type'] = options.type;
+					if (options.html_tag === 'button' && options.change_type) listAttr['type'] = options.change_type;
 					return listAttr;
 				},
 				replaceButton	: function() {
-					var replacementButton = $('<button/>'),
-					img_left = $('<div/>'),
-					img_center = $('<div/>'),
-					img_right = $('<div/>');
-					var currentAttr = currentButton.operations.getAttributes();
-					var value = (currentAttr.value !== undefined) ? currentAttr.value : '',
-					disable = (currentAttr.disabled !== undefined) ? 1 : 0,
+					var replacementButton = $('<' + options.html_tag + '/>'),
+					img_left = $('<span/>'),
+					img_center = $('<span/>'),
+					img_right = $('<span/>'),
+					currentAttr = currentButton.operations.getAttributes(),
+					value = '',
+					width = 'auto';
+					if (options.html_tag === 'button') {
+						value = (currentAttr.value !== undefined) ? currentAttr.value : '';
+					} else {
+						value = $(currentButton).text();
+						width = $(currentButton).width();
+					}
+					var disable = (currentAttr.disabled !== undefined) ? 1 : 0,
 					mOver = true,
 					mDown = true,
 					offset_top = "-" + (parseInt(options.height, 10) * parseInt(options.state.normal, 10)) + "px",
@@ -93,6 +96,8 @@
 						'background'	: 'none transparent'
 					});
 					img_left.css({
+						'display'		: 'block',
+						'width'		: width,
 						'position'	: 'relative',
 						'padding'		: '0px ' + options.right_width + 'px ' + '0px ' + options.left_width + 'px',
 						'backgroundImage'	: "url(" + options.image + ")",
@@ -101,6 +106,7 @@
 						'margin'		: '0px'
 					}).attr('class', 'buttonLeft');
 					img_right.css({
+						'display'		: 'block',
 						'height'		: options.height + 'px',
 						'width'		: options.right_width + 'px',
 						'position'	: 'absolute',
@@ -112,6 +118,7 @@
 						'margin'		: '0px'
 					}).attr('class', 'buttonRight');
 					img_center.css({
+						'display'		: 'block',
 						'line-height'	: options.height + 'px',
 						'backgroundImage'	: "url(" + options.image + ")",
 						'backgroundRepeat'	: "repeat-x",
@@ -146,7 +153,7 @@
 							}
 							mOver = true;
 						});
-						
+
 						replacementButton.unbind('mouseup').bind('mouseup', function() {
 							if (mOver){
 								var offset_top = "-" + (parseInt(options.height, 10) * parseInt(options.state.normal, 10)) + "px",
@@ -186,8 +193,8 @@
 					currentButton.replaceWith(test);
 				},
 				replaceSingleImage	: function () {
-					var replacementButton = $('<button/>'),
-					img_single = $('<div/>');
+					var replacementButton = $('<' + options.html_tag + '/>'),
+					img_single = $('<span/>');
 					var currentAttr = currentButton.operations.getAttributes();
 					var value = (currentAttr.value !== undefined) ? currentAttr.value : '',
 					disable = (currentAttr.disabled !== undefined) ? 1 : 0,
@@ -203,6 +210,7 @@
 						'background'	: 'none transparent'
 					});
 					img_single.css({
+						'display'		: 'block',
 						'height'	: options.height + 'px',
 						'backgroundImage'	: "url(" + options.image + ")",
 						'backgroundRepeat'	: "no-repeat",
