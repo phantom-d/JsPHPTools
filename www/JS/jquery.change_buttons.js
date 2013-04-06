@@ -26,11 +26,12 @@
 		<input type="submit" class="button" value="This is the button"/>
  */
 (function($, undefined){
-	var $temp = $('<div style="background:none;display:none;"/>').appendTo('body');
-	var transparent = $temp.css('backgroundColor');
-	$temp.remove();
-
 	$.fn.bkgcolor = function( fallback ) {
+		if (!transparent) {
+			var $temp = $('<div style="background: none; display: none;"/>').appendTo('body'),
+				   transparent = $temp.css('backgroundColor');
+			$temp.remove();
+		}
 		function test( $elem ) {
 			if ( $elem.css('backgroundColor') == transparent ) {
 				return !$elem.is('body') ? test( $elem.parent() ) : fallback || transparent ;
@@ -92,7 +93,12 @@
 					value = '',
 					width = 'auto',
 					backgroundColor = $(currentButton).bkgcolor();
-					if (backgroundColor == 'transparent')
+					if (!transparent) {
+						var $temp = $('<div style="background: none; display: none;"/>').appendTo('body'),
+							   transparent = $temp.css('backgroundColor');
+						$temp.remove();
+					}
+					if (backgroundColor == transparent)
 						backgroundColor = '#FFF';
 
 					if (options.html_tag === 'button') {
