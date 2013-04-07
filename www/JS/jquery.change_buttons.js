@@ -2,7 +2,7 @@
  * Смена внешнего вида кнопок
  * @author Ermolovich Anton Viktorovich <anton.ermolovich@gmail.com>
  * @package Change buttons
- * @version 1.25
+ * @version 1.26
  * @example
 		<script type="text/javascript">
 			jQuery(document).ready(function(){
@@ -120,8 +120,8 @@
 					});
 					replacementButton.addClass('change_buttons').css({
 						'cursor'		: 'pointer',
-						'display'		: 'block',
-						'width'		: width,
+						'display'		: 'inline-block',
+						'width'		: width + (options.right_width + options.left_width),
 						'border'		: '0 none',
 						'background'	: 'none transparent'
 					});
