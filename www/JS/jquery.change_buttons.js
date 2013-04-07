@@ -2,7 +2,7 @@
  * Смена внешнего вида кнопок
  * @author Ermolovich Anton Viktorovich <anton.ermolovich@gmail.com>
  * @package Change buttons
- * @version 1.21
+ * @version 1.25
  * @example
 		<script type="text/javascript">
 			jQuery(document).ready(function(){
@@ -118,7 +118,7 @@
 					$.each(currentAttr, function(i, v) {
 						replacementButton.attr(i, v);
 					});
-					replacementButton.css({
+					replacementButton.addClass('change_buttons').css({
 						'cursor'		: 'pointer',
 						'display'		: 'block',
 						'width'		: width,
@@ -167,9 +167,12 @@
 							if (mDown){
 								var offset_top = "-" + (parseInt(options.height, 10) * parseInt(options.state.over, 10)) + "px",
 								offset_top_center = "-" + ((parseInt(options.height, 10) * parseInt(options.state.over, 10)) + (parseInt(options.height, 10) * 4)) + "px";
-								img_left.css('backgroundPosition', "0px " + offset_top);
-								img_right.css('backgroundPosition', "-" + options.left_width + "px " + offset_top);
-								img_center.css('backgroundPosition', "0px " + offset_top_center);
+								img_left.css('backgroundPosition', "0px " + offset_top).addClass('buttonLeft_hover');
+								img_right.css('backgroundPosition', "-" + options.left_width + "px " + offset_top).addClass('buttonRight_hover');
+								img_center.css('backgroundPosition', "0px " + offset_top_center).addClass('buttonCenter_hover');
+								img_text.addClass('buttonText_hover');
+								replacementButton.addClass('change_buttons_hover');
+
 							}
 							mOver = false;
 						});
@@ -178,9 +181,11 @@
 							if (mDown){
 								var offset_top = "-" + (parseInt(options.height, 10) * parseInt(options.state.normal, 10)) + "px",
 								offset_top_center = "-" + ((parseInt(options.height, 10) * parseInt(options.state.normal, 10)) + (parseInt(options.height, 10) * 4)) + "px";
-								img_left.css('backgroundPosition', "0px " + offset_top);
-								img_right.css('backgroundPosition', "-" + options.left_width + "px " + offset_top);
-								img_center.css('backgroundPosition', "0px " + offset_top_center);
+								img_left.css('backgroundPosition', "0px " + offset_top).removeClass('buttonLeft_hover');
+								img_right.css('backgroundPosition', "-" + options.left_width + "px " + offset_top).removeClass('buttonRight_hover');
+								img_center.css('backgroundPosition', "0px " + offset_top_center).removeClass('buttonCenter_hover');
+								img_text.removeClass('buttonText_hover');
+								replacementButton.removeClass('change_buttons_hover');
 							}
 							mOver = true;
 						});
@@ -189,15 +194,19 @@
 							if (mOver){
 								var offset_top = "-" + (parseInt(options.height, 10) * parseInt(options.state.normal, 10)) + "px",
 								offset_top_center = "-" + ((parseInt(options.height, 10) * parseInt(options.state.normal, 10)) + (parseInt(options.height, 10) * 4)) + "px";
-								img_left.css('backgroundPosition', "0px " + offset_top);
-								img_right.css('backgroundPosition', "-" + options.left_width + "px " + offset_top);
-								img_center.css('backgroundPosition', "0px " + offset_top_center);
+								img_left.css('backgroundPosition', "0px " + offset_top).removeClass('buttonLeft_hover buttonLeft_click');
+								img_right.css('backgroundPosition', "-" + options.left_width + "px " + offset_top).removeClass('buttonRight_hover buttonRight_click');
+								img_center.css('backgroundPosition', "0px " + offset_top_center).removeClass('buttonCenter_hover buttonCenter_click');
+								img_text.removeClass('buttonText_hover buttonText_click');
+								replacementButton.removeClass('change_buttons_hover change_buttons_click');
 							} else if (!mOver) {
 								var offset_top = "-" + (parseInt(options.height, 10) * parseInt(options.state.over, 10)) + "px",
 								offset_top_center = "-" + ((parseInt(options.height, 10) * parseInt(options.state.over, 10)) + (parseInt(options.height, 10) * 4)) + "px";
-								img_left.css('backgroundPosition', "0px " + offset_top);
-								img_right.css('backgroundPosition', "-" + options.left_width + "px " + offset_top);
-								img_center.css('backgroundPosition', "0px " + offset_top_center);
+								img_left.css('backgroundPosition', "0px " + offset_top).removeClass('buttonLeft_click');
+								img_right.css('backgroundPosition', "-" + options.left_width + "px " + offset_top).removeClass('buttonRight_click');
+								img_center.css('backgroundPosition', "0px " + offset_top_center).removeClass('buttonCenter_click');
+								img_text.removeClass('buttonText_click');
+								replacementButton.removeClass('change_buttons_click');
 							}
 							mDown = true;
 						});
@@ -206,17 +215,21 @@
 							mDown = false;
 							var offset_top = "-" + (parseInt(options.height, 10) * parseInt(options.state.active, 10)) + "px",
 							offset_top_center = "-" + ((parseInt(options.height, 10) * parseInt(options.state.active, 10)) + (parseInt(options.height, 10) * 4)) + "px";
-							img_left.css('backgroundPosition', "0px " + offset_top);
-							img_right.css('backgroundPosition', "-" + options.left_width + "px " + offset_top);
-							img_center.css('backgroundPosition', "0px " + offset_top_center);
+							img_left.css('backgroundPosition', "0px " + offset_top).addClass('buttonLeft_click');
+							img_right.css('backgroundPosition', "-" + options.left_width + "px " + offset_top).addClass('buttonRight_click');
+							img_center.css('backgroundPosition', "0px " + offset_top_center).addClass('buttonCenter_click');
+							img_text.addClass('buttonText_click');
+							replacementButton.addClass('change_buttons_click');
 						});
 					} else {
 						replacementButton.attr('disabled', 'disabled');
 						var offset_top = "-" + (parseInt(options.height, 10) * parseInt(options.state.disable, 10)) + "px",
 						offset_top_center = "-" + ((parseInt(options.height, 10) * parseInt(options.state.disable, 10)) + (parseInt(options.height, 10) * 4)) + "px";
-						img_left.css('backgroundPosition', "0px " + offset_top);
-						img_right.css('backgroundPosition', "-" + options.left_width + "px " + offset_top);
-						img_center.css('backgroundPosition', "0px " + offset_top_center);
+						img_left.css('backgroundPosition', "0px " + offset_top).addClass('buttonLeft_disabled');
+						img_right.css('backgroundPosition', "-" + options.left_width + "px " + offset_top).addClass('buttonRight_disabled');
+						img_center.css('backgroundPosition', "0px " + offset_top_center).addClass('buttonCenter_disabled');
+						img_text.addClass('buttonText_disabled');
+						replacementButton.addClass('change_buttons_disabled');
 					}
 
 					img_left.append(img_right).append(img_center);
