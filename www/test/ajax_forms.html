@@ -26,6 +26,14 @@
 						$('#form_1')._ajax_form({
 							'useMaskedPhone'	: true,
 							'scrollTopAdd'		: -100,
+							'before'			: function(form, elems, buttons, options) {
+								var block = $(form).find('.block:eq(0)').clone();
+								$('.add_block').click(function(e){
+									e.preventDefault();
+									$(form).find('.block:last').after($(block).clone());
+									options.update_elems();
+								});
+							},
 							'beforeCheck'		: function(error, elems, options, form) {
 								console.info(options);
 							},
@@ -86,9 +94,12 @@
 	</head>
 	<body>
 		<form action="/text1/" method="post" id="form_1">
-			<div><input type="text" name="text1" class="is_empty" /></div>
-			<div><input type="text" name="text2" class="is_empty is_phone" /></div>
-			<div><input type="text" name="text3" class="is_empty is_email" /></div>
+			<div class="block">
+				<div><input type="text" name="text1" class="is_empty" /></div>
+				<div><input type="text" name="text2" class="is_empty is_phone" /></div>
+				<div><input type="text" name="text3" class="is_empty is_email" /></div>
+			</div>
+			<div><a href="#" class="add_block">+ Add block</a></div>
 			<div><input type="submit" value="Отправить" /></div>
 		</form>
 		<form action="/text2/" method="post" id="form_2">

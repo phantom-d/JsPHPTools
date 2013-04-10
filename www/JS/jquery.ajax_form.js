@@ -1,6 +1,6 @@
 /**
  * jQuery AJAX Form
- * @version 2.272
+ * @version 3.0
  **/
 (function ($, undefined) {
 	$._ajax_form = {
@@ -59,14 +59,14 @@
 				$(this).find('textarea, select, input').parent()
 					.removeClass('error valid type0 type1 type2 type3');
 			});
-			if (typeof callback == 'function')
+			if (typeof callback === 'function')
 				callback.call(this, forms);
 		},
 		'remove_empty'	: function (someArray) {
 			var newArray = [];
 			var element;
 			$.each(someArray, function (element) {
-				if (someArray[element] != '') {
+				if (someArray[element] !== '') {
 					newArray.push(someArray[element]);
 				}
 			});
@@ -108,18 +108,25 @@
 			if (typeof options.before === 'function')
 				options.before.call(this, form, options.send.formElements, options.send.button, options);
 
-			var filter = ':not(select):not(.on_change)';
-			if (options.useMaskedPhone) {
-				filter += ':not(.is_phone)';
+			options.filter = ':not(select):not(.on_change):not(.is_phone)';
+
+			options.update_elems = function () {
+				var elems = form.find('textarea, select, input[type="text"], input[type="hidden"], input[type="password"]');
+				$(elems).each(function(){
+					if (!$(this).data('ajax_form')) {
+						if (options.useMaskedPhone) {
+							$(this).filter('.is_phone').each(function () {
+								$(this).mask(options.maskPhone);
+							});
+						}
+						$(this).filter(options.filter).keyup(options.checkElement).data('ajax_form', true);;
+						$(this).filter('select, .on_change, .is_phone').change(options.checkElement).data('ajax_form', true);;
+						options.send.formElements.push(this);
+					}
+				});
 			}
-			options.send.formElements.filter(filter).keyup(checkElement);
-			options.send.formElements.filter('select, .on_change').change(checkElement);
-			options.send.button.click(checkElementsToSend);
 
-			if (typeof options.after === 'function')
-				options.after.call(this, form, options.send.formElements, options.send.button, options);
-
-			function send_ajax_form() {
+			options.send_ajax_form = function () {
 				var success = false;
 				$.ajax({
 					'type'		: options.type,
@@ -177,7 +184,7 @@
 				return false;
 			}
 
-			function checkElementsToSend() {
+			options.checkElementsToSend = function () {
 				// @todo разобраться с блокированием.разблокированием кнопок после нажатия
 				// options.send.button.attr('disabled', 'disabled');
 				// reset validation var and send data
@@ -191,7 +198,7 @@
 					var currentElement = $(this),
 					value = currentElement.val(),
 					name = currentElement.attr('name');
-					currentElement.each(checkElement);
+					currentElement.each(options.checkElement);
 
 					if (currentElement.parent().hasClass('error')) {
 						if (options.scrollToFirstError && !options.scrollTo.length) {
@@ -231,7 +238,7 @@
 				return true;
 			}
 
-			function checkElement() {
+			options.checkElement = function () {
 				var currentElement = $(this),
 				validElement = false,
 				surroundingElement = currentElement.parent(),
@@ -372,14 +379,20 @@
 				}
 			}
 
-			function focusInElement() {
+			options.focusInElement = function () {
 				$(this).parent().find('.onfocus').css('display', options.onFocus);
 			}
 
-			function focusOutElement() {
+			options.focusOutElement = function () {
 				$(this).parent().find('.onfocus').css('display', 'none');
 			}
 
+			options.send.formElements.filter(options.filter).keyup(options.checkElement);
+			options.send.formElements.filter('select, .on_change, .is_phone').change(options.checkElement);
+			options.send.button.click(options.checkElementsToSend);
+
+			if (typeof options.after === 'function')
+				options.after.call(this, form, options.send.formElements, options.send.button, options);
 		});
 	};
 
