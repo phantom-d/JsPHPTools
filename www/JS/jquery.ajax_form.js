@@ -1,6 +1,6 @@
 /**
  * jQuery AJAX Form
- * @version 2.27
+ * @version 2.272
  **/
 (function ($, undefined) {
 	$._ajax_form = {
@@ -72,7 +72,7 @@
 			});
 			return newArray;
 		}
-	}
+	};
 	$.fn._ajax_form = function (params) {
 		if (params.sendPath === undefined) {
 			var sendPath = $(this).attr('action');
@@ -92,32 +92,32 @@
 		var options = $.extend({}, $._ajax_form.defaults, params);
 
 		return $(this).each(function () {
-			var form = $(this),
-			send = {
-				formElements		: form.find('textarea, select, input[type="text"], input[type="hidden"], input[type="password"]'),
+			var form = $(this);
+			options.send = {
+				formElements		: form.find('textarea, select, input[type="text"], input[type="hidden"], input[type="password"]').data('ajax_form', true),
 				validationError	: false,
-				button			: form.find('input[type="submit"], button[type="submit"]'),
+				button			: form.find('input[type="submit"], button[type="submit"]').data('ajax_form', true),
 				datastring		: '',
 				fullCheck			: false
-			}
+			};
 			if (options.useMaskedPhone) {
-				send.formElements.filter('.is_phone').each(function () {
+				options.send.formElements.filter('.is_phone').each(function () {
 					$(this).mask(options.maskPhone);
 				});
 			}
-			if (typeof options.before == 'function')
-				options.before.call(this, form, send.formElements, send.button, options);
+			if (typeof options.before === 'function')
+				options.before.call(this, form, options.send.formElements, options.send.button, options);
 
 			var filter = ':not(select):not(.on_change)';
 			if (options.useMaskedPhone) {
 				filter += ':not(.is_phone)';
 			}
-			send.formElements.filter(filter).keyup(checkElement);
-			send.formElements.filter('select, .on_change').change(checkElement);
-			send.button.click(checkElementsToSend);
+			options.send.formElements.filter(filter).keyup(checkElement);
+			options.send.formElements.filter('select, .on_change').change(checkElement);
+			options.send.button.click(checkElementsToSend);
 
-			if (typeof options.after == 'function')
-				options.after.call(this, form, send.formElements, send.button, options);
+			if (typeof options.after === 'function')
+				options.after.call(this, form, options.send.formElements, options.send.button, options);
 
 			function send_ajax_form() {
 				var success = false;
@@ -125,27 +125,27 @@
 					'type'		: options.type,
 					'dataType'	: options.dataType,
 					'beforeSend'	: function () {
-						if (typeof options.beforeSend == 'function')
-							options.beforeSend.call(this, send.datastring, options);
+						if (typeof options.beforeSend === 'function')
+							options.beforeSend.call(this, options.send.datastring, options);
 					},
 					'url'		: options.sendPath.split('?')[0],
-					'data'		: send.datastring,
+					'data'		: options.send.datastring,
 					'complete'	: function () {
-						if (typeof options.callBack == 'function')
-							options.callBack.call(this, send.formElements, options);
+						if (typeof options.callBack === 'function')
+							options.callBack.call(this, options.send.formElements, options);
 					},
 					'success'		: function (response) {
 						if (options.response) {
 							var text = '',
 							content = '';
-							if (options.dataType == 'json') {
-								if (response.error.length == 0) {
+							if (options.dataType === 'json') {
+								if (response.error.length === 0) {
 									text = '<div class="message">' + response.message + '</div>';
 								} else {
 									$.each(response.error, function(i, v){
 										text += '<div class="error">' + v + '</div>';
 									});
-									if (typeof (response.debug) != 'undefined' && response.debug != '')
+									if (typeof (response.debug) !== 'undefined' && response.debug !== '')
 										text += '<div class="error">' + response.debug + '</div>';
 								}
 							} else {
@@ -157,21 +157,21 @@
 							if (options.responseClear) $(options.responseTarget).html(content).show();
 							else $(options.responseTarget).append(content).show();
 						}
-						if (options.dataType == 'json') {
-							if (response.error.length == 0) success = true;
+						if (options.dataType === 'json') {
+							if (response.error.length === 0) success = true;
 						} else success = true;
 						if (success) {
 							$._ajax_form.resetForm(form);
 						}
-						if (options.dataType == 'json') {
-							if (typeof (response.error) == 'undefined') {
+						if (options.dataType === 'json') {
+							if (typeof (response.error) === 'undefined') {
 								response = {
 									'error': {}
-								}
+								};
 							}
 						}
-						if (typeof options.success == 'function')
-							options.success.call(this, form, response, send.formElements, options);
+						if (typeof options.success === 'function')
+							options.success.call(this, form, response, options.send.formElements, options);
 					}
 				});
 				return false;
@@ -179,15 +179,15 @@
 
 			function checkElementsToSend() {
 				// @todo разобраться с блокированием.разблокированием кнопок после нажатия
-				// send.button.attr('disabled', 'disabled');
+				// options.send.button.attr('disabled', 'disabled');
 				// reset validation var and send data
 				options.scrollTo = {};
-				send.validationError = false;
-				send.fullCheck = true;
-				send.datastring = 'ajax=1';
-				if (typeof options.beforeCheck == 'function')
-					send.validationError = options.beforeCheck.call(this, send.validationError, send.formElements, options, form);
-				$.each(send.formElements, function () {
+				options.send.validationError = false;
+				options.send.fullCheck = true;
+				options.send.datastring = 'ajax=1';
+				if (typeof options.beforeCheck === 'function')
+					options.send.validationError = options.beforeCheck.call(this, options.send.validationError, options.send.formElements, options, form);
+				$.each(options.send.formElements, function () {
 					var currentElement = $(this),
 					value = currentElement.val(),
 					name = currentElement.attr('name');
@@ -197,37 +197,37 @@
 						if (options.scrollToFirstError && !options.scrollTo.length) {
 							options.scrollTo = currentElement;
 						}
-						send.validationError = true;
+						options.send.validationError = true;
 					}
-					if (name != undefined && name != '')
-						send.datastring += '&' + name + '=' + value;
+					if (name !== undefined && name !== '')
+						options.send.datastring += '&' + name + '=' + value;
 				});
 				form.find('input:checked').each(function () {
 					var currentElement = $(this),
 					value = currentElement.val(),
 					name = currentElement.attr('name');
-					send.datastring += '&' + name + '=' + value;
+					options.send.datastring += '&' + name + '=' + value;
 				});
-				if (typeof options.afterCheck == 'function')
-					send.validationError = options.afterCheck.call(this, send.validationError, send.formElements, options, form);
-				send.fullCheck = false;
-				if (!send.validationError) {
+				if (typeof options.afterCheck === 'function')
+					options.send.validationError = options.afterCheck.call(this, options.send.validationError, options.send.formElements, options, form);
+				options.send.fullCheck = false;
+				if (!options.send.validationError) {
 					if (options.send_ajax) {
 						send_ajax_form();
-						send.button.removeAttr('disabled');
+						options.send.button.removeAttr('disabled');
 						return false;
 					} else {
-						send.button.removeAttr('disabled');
+						options.send.button.removeAttr('disabled');
 						return true;
 					}
 				} else {
 					if (options.scrollToFirstError && options.scrollTo.length) {
 						$._ajax_form.scrollToObject(options.scrollTo, options.scrollSpeed, options.scrollTopAdd);
 					}
-					send.button.removeAttr('disabled');
+					options.send.button.removeAttr('disabled');
 					return false;
 				}
-				send.button.removeAttr('disabled');
+				options.send.button.removeAttr('disabled');
 				return true;
 			}
 
@@ -236,14 +236,14 @@
 				validElement = false,
 				surroundingElement = currentElement.parent(),
 				classes = currentElement.attr('class');
-				if (!send.fullCheck)
-					send.validationError = false;
+				if (!options.send.fullCheck)
+					options.send.validationError = false;
 				surroundingElement.removeClass(options.classes_valid);
-				if (typeof options.beforeCheckElement == 'function') {
-					send.validationError = options.beforeCheckElement.call(this, send.validationError, surroundingElement, currentElement, send.formElements, options);
+				if (typeof options.beforeCheckElement === 'function') {
+					options.send.validationError = options.beforeCheckElement.call(this, options.send.validationError, surroundingElement, currentElement, options.send.formElements, options);
 					classes = currentElement.attr('class');
 					if (classes && classes.match(options.regexp.check)) {
-						if (send.validationError) {
+						if (options.send.validationError) {
 							surroundingElement.addClass('error');
 						} else {
 							surroundingElement.addClass('valid');
@@ -254,11 +254,11 @@
 				var value = currentElement.val();
 				if (classes) {
 					if (classes.match(/is_empty/i)) {
-						if (value == '') {
+						if (value === '') {
 							surroundingElement.removeClass('valid');
 							surroundingElement.addClass('error');
 							surroundingElement.addClass('type0');
-							send.validationError = true;
+							options.send.validationError = true;
 							validElement = false;
 						} else {
 							surroundingElement.addClass('valid');
@@ -268,52 +268,52 @@
 					if (classes.match(/is_int/i)) {
 						value = value.replace(/[^0-9]/g, '');
 						currentElement.val(value);
-						if (classes.match(/is_empty/i) && (value == '' || parseInt(value) == 0)) {
+						if (classes.match(/is_empty/i) && (value === '' || parseInt(value) === 0)) {
 							surroundingElement.removeClass('valid');
 							surroundingElement.addClass('error');
 							surroundingElement.addClass('type0');
-							send.validationError = true;
+							options.send.validationError = true;
 							validElement = false;
 						}
 					}
 					if (classes.match(/is_float/i)) {
 						value = value.replace(/[^0-9,.]/g, '').replace(',', '.');
 						currentElement.val(value);
-						if (classes.match(/is_empty/i) && (value == '' || parseFloat(value) == 0)) {
+						if (classes.match(/is_empty/i) && (value === '' || parseFloat(value) === 0)) {
 							surroundingElement.removeClass('valid');
 							surroundingElement.addClass('error');
 							surroundingElement.addClass('type0');
-							send.validationError = true;
+							options.send.validationError = true;
 							validElement = false;
 						}
 					}
 					if (classes.match(/is_text/i)) {
-						if (value != '' && !value.match(options.regexp.text)) {
+						if (value !== '' && !value.match(options.regexp.text)) {
 							surroundingElement.removeClass('valid');
 							surroundingElement.addClass('error');
 							surroundingElement.addClass('type1');
-							send.validationError = true;
+							options.send.validationError = true;
 							validElement = false;
 						} else {
 							if (!surroundingElement.hasClass('type0'))
 								surroundingElement.removeClass('error');
-							if (value != '') {
+							if (value !== '') {
 								surroundingElement.addClass('valid');
 								validElement = true;
 							}
 						}
 					}
 					if (classes.match(/is_email/i)) {
-						if (value != '' && !value.match(options.regexp.email)) {
+						if (value !== '' && !value.match(options.regexp.email)) {
 							surroundingElement.removeClass('valid');
 							surroundingElement.addClass('error');
 							surroundingElement.addClass('type1');
-							send.validationError = true;
+							options.send.validationError = true;
 							validElement = false;
 						} else {
 							if (!surroundingElement.hasClass('type0'))
 								surroundingElement.removeClass('error');
-							if (value != '') {
+							if (value !== '') {
 								surroundingElement.addClass('valid');
 								validElement = true;
 							}
@@ -334,10 +334,10 @@
 						}
 						min_max = $._ajax_form.remove_empty(min_max),
 						phone_default = $.extend(phone_default, min_max);
-						if (value != '' && (!value.match(options.regexp.phone) || value_digits.length < parseInt(phone_default[0]) || value_digits.length > parseInt(phone_default[1]))) {
+						if (value !== '' && (!value.match(options.regexp.phone) || value_digits.length < parseInt(phone_default[0]) || value_digits.length > parseInt(phone_default[1]))) {
 							surroundingElement.removeClass('valid');
 							surroundingElement.addClass('error');
-							send.validationError = true;
+							options.send.validationError = true;
 							validElement = false;
 							if (value_digits.length > 0 && value_digits.length < parseInt(phone_default[0])) {
 								surroundingElement.addClass('type2');
@@ -349,7 +349,7 @@
 						} else {
 							if (!surroundingElement.hasClass('type0'))
 								surroundingElement.removeClass('error');
-							if (value != '') {
+							if (value !== '') {
 								surroundingElement.addClass('valid');
 								validElement = true;
 							}
@@ -357,8 +357,8 @@
 						currentElement.val(value_full);
 					}
 				}
-				if (typeof options.afterCheckElement == 'function') {
-					send.validationError = options.afterCheckElement.call(this, send.validationError, surroundingElement, currentElement, send.formElements, options);
+				if (typeof options.afterCheckElement === 'function') {
+					options.send.validationError = options.afterCheckElement.call(this, options.send.validationError, surroundingElement, currentElement, options.send.formElements, options);
 					classes = currentElement.attr('class');
 					if (classes && classes.match(options.regexp.check)) {
 						if (validElement) {
@@ -381,24 +381,24 @@
 			}
 
 		});
-	}
+	};
 
 	$.fn.reset = function () {
 		$(this).each (function() {
 			this.reset();
 		});
-	}
+	};
 
 	$.fn.autoClear = function () {
 		return $(this).each(function(){
 			$(this).data('defaultValue', this.defaultValue);
 			$(this).focusin(function() {   // обработка фокуса
-				if ($(this).val() == $(this).data('defaultValue')) {
+				if ($(this).val() === $(this).data('defaultValue')) {
 					$(this).val('');
 				}
 			})
 			.blur(function() {    // обработка потери фокуса
-				if ($(this).val() == '') {
+				if ($(this).val() === '') {
 					$(this).val($(this).data('defaultValue'));
 				}
 			});
