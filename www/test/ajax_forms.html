@@ -16,37 +16,40 @@
 		</style>
 		<script type="text/javascript">
 			$(function(){
-				$('[type="submit"]:eq(0)').change_buttons({
-					image		: '../JS/button.png',
-					left_width	: 15,
-					right_width	: 15,
-					height		: 30,
-					type			: 'submit',
-					callback		: function() {
-						$('#form_1')._ajax_form({
-							'useMaskedPhone'	: true,
-							'scrollTopAdd'		: -100,
-							'before'			: function(form, elems, buttons, options) {
-								var block = $(form).find('.block:eq(0)').clone();
-								$('.add_block').click(function(e){
-									e.preventDefault();
-									$(form).find('.block:last').after($(block).clone());
-									options.update_elems();
-								});
-							},
-							'beforeCheck'		: function(error, elems, options, form) {
-								console.info(options);
-							},
-							'callBack'		: function() {
-								alert('Ваше сообщение отправлено');
-							}
+				$('#form_1')._ajax_form({
+					'useMaskedPhone'	: true,
+					'scrollTopAdd'		: -100,
+					'before'			: function(form, elems, buttons, options) {
+						var block = $(form).find('.block:eq(0)').clone();
+						$('.add_block').click(function(e){
+							e.preventDefault();
+							$(form).find('.block:last').after($(block).clone());
+							options.update_elems();
 						});
 					},
-					state		: {
-						normal	: 0,
-						over		: 1,
-						active	: 2,
-						disable	: 3
+					'after'		: function(form, elems, buttons, options) {
+						$(buttons).change_buttons({
+							image		: '../JS/button.png',
+							left_width	: 15,
+							right_width	: 15,
+							height		: 30,
+							type			: 'submit',
+							callback		: function() {
+							},
+							state		: {
+								normal	: 0,
+								over		: 1,
+								active	: 2,
+								disable	: 3
+							}
+						});
+						options.update_elems();
+					},
+					'beforeCheck'		: function(error, elems, options, form) {
+						console.info(options);
+					},
+					'callBack'		: function() {
+						alert('Ваше сообщение отправлено');
 					}
 				});
 				$('#form_2')._ajax_form({
@@ -60,6 +63,7 @@
 					}
 				});
 				$('#form_3')._ajax_form({
+					'send_ajax'		: false,
 					'useMaskedPhone'	: false,
 					'scrollTopAdd'		: -100,
 					'beforeCheck'		: function(error, elems, options, form) {
