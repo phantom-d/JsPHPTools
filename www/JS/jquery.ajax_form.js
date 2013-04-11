@@ -1,6 +1,6 @@
 /**
  * jQuery AJAX Form
- * @version 3.11
+ * @version 3.12
  **/
 (function($, undefined) {
 	$._ajax_form = {
@@ -171,9 +171,9 @@
 							}
 							if (options.dataType === 'json') {
 								if (typeof (response.error) === 'undefined') {
-									response = {
+									response = $.extend({}, response, {
 										'error': {}
-									};
+									});
 								}
 							}
 							if (typeof options.success === 'function')
