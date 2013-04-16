@@ -3,7 +3,7 @@
 /**
  * Класс для сбора и вывода информации в отдельную панель
  * @author Anton Ermolovich <anton.ermolovich@gmail.com>
- * @version 1.71
+ * @version 1.75
  */
 class Debug {
 
@@ -24,6 +24,12 @@ class Debug {
 	 * @var mixed
 	 */
 	var $debug = array();
+
+	/**
+	 * Отображение отладочной информации
+	 * @var bollean
+	 */
+	var $debug_data = false;
 
 	/**
 	 * Список элементов, которые не требуется преобразовывать
@@ -59,7 +65,8 @@ class Debug {
 		'&rbrack;',
 	);
 
-	function __construct() {
+	function __construct($debug = false) {
+		$this->debug_data = !empty($debug);
 		if (phpversion() >= 5.2) {
 			ini_set('pcre.backtrack_limit', '1000M');
 			ini_set('pcre.recursion_limit', '1000M');
@@ -164,6 +171,7 @@ class Debug {
 	function prepare_data($data) {
 		$no_recode = array();
 		$text = '';
+		$return = '';
 
 		foreach ((array)$this->no_recode as $key) {
 			if (isset($data[$key])) {
@@ -178,6 +186,9 @@ class Debug {
 		}
 
 		$text = $text . $this->htmlSpecialChars($data);
+
+		if ($this->debug_data)
+			$return .= $text;
 		$pattern = array(
 			'/^array.+\{\n/',
 			'/=>[\s]+/',
@@ -198,7 +209,7 @@ class Debug {
 			'</div><span>$1</span><strong style=" color: #00F;">}</strong>',
 			'',
 		);
-		$return = preg_replace($pattern, $replace, $text);
+		$return .= preg_replace($pattern, $replace, $text);
 		if (phpversion() >= 5) {
 			if (preg_last_error() == PREG_INTERNAL_ERROR) {
 				$return = "There is an internal error!\n" . $return;
@@ -261,50 +272,64 @@ class Debug {
 				ob_start();
 				var_dump($item);
 				if (preg_match('/^object.*\(0\)/', ob_get_clean())) {
-					$string .= "object (0) {";
+					$string .= "object (0) {}\n";
 				} else {
 					if (is_object($item)) {
-						$level = $level + 1;
+						++$level;
 						$class_name = get_class($item);
 						$methods = get_class_methods($class_name);
 						$properties = get_class_vars($class_name);
 						sort($methods, SORT_STRING);
+						ksort($properties, SORT_STRING);
 
-						$string .= "object() {" . "\n";
-						$string .= $this->add_tabs($level);
-						$string .= "['{$class_name}']=> array(" . count($methods) . ") {" . "\n";
+						$string .= "object() {\n"
+							. $this->add_tabs($level)
+							. "['{$class_name}']=> array(" . count($methods) . ") {";
 
 						if (!empty($methods)) {
-							$string .= $this->htmlSpecialChars((array)$methods, $level + 1);
+							$string .= "\n" . $this->htmlSpecialChars((array)$methods, $level + 1);
 						}
 
-						$string .= $this->add_tabs($level);
-						$string .= "}" . "\n";
-						$string .= $this->add_tabs($level);
+						$string .= $this->add_tabs($level)
+							. "}\n"
+							. $this->add_tabs($level)
+							. "['properties']=> array(" . count($properties) . ") {";
+
 						if (!empty($properties)) {
-							$string .= '["properties"]=> object() {' . "\n";
-							$string .= $this->htmlSpecialChars((array)$properties, $level + 1);
-							$string .= $this->add_tabs($level);
-							$string .= "}" . "\n";
-						} else {
-							$string .= '["properties"]=> *EMPTY*' . "\n";
+							$string .= "\n" . $this->htmlSpecialChars((array)$properties, $level + 1);
 						}
-						$string .= $this->add_tabs($level);
-						$string .= '["data"]=> object() {' . "\n";
+
+						$string .= $this->add_tabs($level)
+							. "}\n"
+							. $this->add_tabs($level)
+							. '["data"]=> object(' . count($item) . ") {";
+							if (!empty($item)) {
+								$item_data = (array)$item;
+								ksort($item_data, SORT_STRING);
+								$string .= "\n" . $this->htmlSpecialChars($item_data, $level + 1, $recursion)
+								. $this->add_tabs($level);
+							}
+							$string .= "}\n"
+							. $this->add_tabs($level - 1)
+							. "}\n";
+						--$level;
 					} else {
-						$string .= "array(" . count($item) . ") {" . "\n";
+						if (!empty($item)) {
+							$string .= "array(" . count($item) . ") {\n";
+
+							$test_array = array_keys($item);
+							if (!empty($test_array) && is_string($test_array[0])) {
+								ksort($item, SORT_STRING);
+							}
+
+							$string .= $this->htmlSpecialChars((array)$item, $level + 1, $recursion)
+								. $this->add_tabs($level)
+								. "}\n";
+						} else {
+							$string .= "array(0){}\n";
+						}
 					}
 				}
-				if (!empty($item)) {
-					$string .= $this->htmlSpecialChars((array)$item, $level + 1, $recursion);
-					if (is_object($item)) {
-						$string .= $this->add_tabs($level);
-						$string .= '}' . "\n";
-						$level = $level - 1;
-					}
-					$string .= $this->add_tabs($level);
-				}
-				$string .= '}' . "\n";
 			}
 		}
 		return $string;
