@@ -3,7 +3,7 @@
 /**
  * Класс для сбора и вывода информации в отдельную панель
  * @author Anton Ermolovich <anton.ermolovich@gmail.com>
- * @version 1.75
+ * @version 1.76
  */
 class Debug {
 
@@ -262,11 +262,26 @@ class Debug {
 				ob_start();
 				var_dump($item);
 				$string .= htmlSpecialChars(ob_get_clean());
-			} else if (!(is_bool($item) || is_null($item) || is_int($item) || is_float($item)) && (is_scalar($item) || is_resource($item))) {
+			} else if (!(is_bool($item) || is_null($item) || is_int($item) || is_float($item)) && is_resource($item)) {
 				$item = str_replace($this->search, $this->replace, $item);
 				ob_start();
 				var_dump($item);
 				$string .= htmlSpecialChars(ob_get_clean());
+			} else if (!(is_bool($item) || is_null($item) || is_int($item) || is_float($item) || is_resource($item)) && is_scalar($item)) {
+				$item = str_replace($this->search, $this->replace, $item);
+				ob_start();
+				var_dump($item);
+				$item_string = ob_get_clean();
+				if (preg_match('/^string/', $item_string) && strlen($item) > 100) {
+					$string .= "string (" . strlen($item) . ") {";
+						if (!empty($item)) {
+							$string .= "\n" . htmlSpecialChars($item) . "\n";
+						}
+						$string .= $this->add_tabs($level)
+							. "}\n";
+				} else {
+					$string .= htmlSpecialChars($item_string);
+				}
 			} else {
 				$recursion = $key;
 				ob_start();
