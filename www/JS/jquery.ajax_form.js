@@ -1,6 +1,6 @@
 /**
  * jQuery AJAX Form
- * @version 3.13.2
+ * @version 3.13.3
  **/
 (function($, undefined) {
 	$._ajax_form = {
@@ -141,7 +141,7 @@
 								var text = '',
 									   content = '';
 								if (options.dataType === 'json') {
-									if (response.error.length === 0) {
+									if ($(response.error).length === 0) {
 										text = '<div class="message">' + response.message + '</div>';
 									} else {
 										$.each(response.error, function(i, v) {
@@ -163,7 +163,7 @@
 									$(options.responseTarget).append(content).show();
 							}
 							if (options.dataType === 'json') {
-								if (response.error.length === 0)
+								if ($(response.error).length === 0)
 									success = true;
 							} else
 								success = true;
