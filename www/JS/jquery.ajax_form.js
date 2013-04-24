@@ -1,6 +1,6 @@
 /**
  * jQuery AJAX Form
- * @version 3.13.1
+ * @version 3.13.2
  **/
 (function($, undefined) {
 	$._ajax_form = {
@@ -119,6 +119,7 @@
 							$(this).mask(options.maskPhone);
 						});
 					}
+					return options;
 				},
 				send_ajax_form: function() {
 					var success = false;
@@ -205,13 +206,13 @@
 							options.send.validationError = true;
 						}
 						if (name !== undefined && name !== '')
-							options.send.datastring += '&' + name + '=' + value;
+							options.send.datastring += '&' + name + '=' + encodeURI(value);
 					});
 					form.find('input:checked').each(function() {
 						var currentElement = $(this),
 							   value = currentElement.val(),
 							   name = currentElement.attr('name');
-						options.send.datastring += '&' + name + '=' + value;
+						options.send.datastring += '&' + name + '=' + encodeURI(value);
 					});
 					if (typeof options.afterCheck === 'function')
 						options.send.validationError = options.afterCheck.call(this, options.send.validationError, options.send.formElements, options, form);
