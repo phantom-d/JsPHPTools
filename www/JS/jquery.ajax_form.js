@@ -1,47 +1,47 @@
 /**
  * jQuery AJAX Form
- * @version 3.12
+ * @version 3.13.1
  **/
 (function($, undefined) {
 	$._ajax_form = {
-		'defaults': {
-			sendPath: '/',
-			type: 'post',
-			dataType: 'html',
-			onFocus: false,
+		defaults		: {
+			sendPath			: '/',
+			type				: 'post',
+			dataType			: 'html',
+			onFocus			: false,
 			//принимаемые значения соответствуют значениям CSS 'display', 'none'=false
-			response: false,
-			send_ajax: true,
-			responseContainer: '.ajaxresponse',
-			responseClear: false,
-			responseTarget: 'body',
-			classes_valid: 'error valid type0 type1 type2 type3',
-			regexp: {
-				text: /^[a-zа-яё\- ]+$/ig,
-				email: /^\w[\w|\.|\-]+@\w[\w|\.|\-]+\.[a-zA-Z]{2,4}$/i,
-				phone: /^((([0-9][-\. ]?){7})|([+]?[0-9][-\. ]?((([0-9][-\. ]?){3,5})|([(]([0-9][-\. ]?){3,5}[)][-\. ]?))([0-9][-\. ]?){5,7}))([-\. #]?(([0-9][-\. ]?){1,5})?)?$/,
-				check: /is_empty|is_text|is_phone|is_email/i
+			response			: false,
+			send_ajax			: true,
+			responseContainer	: '.ajaxresponse',
+			responseClear		: false,
+			responseTarget		: 'body',
+			classes_valid		: 'error valid type0 type1 type2 type3',
+			regexp			: {
+				text		: /^[a-zа-яё\- ]+$/ig,
+				email	: /^\w[\w|\.|\-]+@\w[\w|\.|\-]+\.[a-zA-Z]{2,4}$/i,
+				phone	: /^((([0-9][-\. ]?){7})|([+]?[0-9][-\. ]?((([0-9][-\. ]?){3,5})|([(]([0-9][-\. ]?){3,5}[)][-\. ]?))([0-9][-\. ]?){5,7}))([-\. #]?(([0-9][-\. ]?){1,5})?)?$/,
+				check	: /is_empty|is_text|is_phone|is_email/i
 			},
-			useMaskedPhone: false,
+			useMaskedPhone		: false,
 			scrollToFirstError: true,
-			is_scrolled: false,
-			scrollSpeed: 'fast',
-			scrollTopAdd: 0,
-			maskPhone: '9 (999) 999-99-99',
-			filter_not: ':not(select):not(.on_change)',
-			filter: 'select, .on_change'
-				   /**
-				    * Задаваемые функции
-				    * before			: function(){},
-				    * after			: function(){},
-				    * beforeCheck		: function(){},
-				    * afterCheck		: function(){},
-				    * beforeCheckElement : function(){},
-				    * afterCheckElement	: function(){},
-				    * beforeSend		: function(){},
-				    * success			: function(){},
-				    * callBack		: function(){}
-				    **/
+			is_scrolled		: false,
+			scrollSpeed		: 'fast',
+			scrollTopAdd		: 0,
+			maskPhone			: '9 (999) 999-99-99',
+			filter_not		: ':not(select):not(.on_change)',
+			filter			: 'select, .on_change'
+			/**
+			 * Задаваемые функции
+			 * before			: function(){},
+			 * after			: function(){},
+			 * beforeCheck		: function(){},
+			 * afterCheck		: function(){},
+			 * beforeCheckElement : function(){},
+			 * afterCheckElement	: function(){},
+			 * beforeSend		: function(){},
+			 * success			: function(){},
+			 * callBack		: function(){}
+			 **/
 		},
 		'scrollToObject': function(obj, speed, topAdd) {
 			if (!obj)
@@ -56,7 +56,7 @@
 			}, speed);
 			$(obj).focus();
 		},
-		'resetForm': function(forms, callback) {
+		'resetForm'	: function(forms, callback) {
 			$(forms).each(function() {
 				this.reset();
 				$(this).find('textarea, select, input').parent()
@@ -65,7 +65,7 @@
 			if (typeof callback === 'function')
 				callback.call(this, forms);
 		},
-		'remove_empty': function(someArray) {
+		'remove_empty'	: function(someArray) {
 			var newArray = [];
 			var element;
 			$.each(someArray, function(element) {
@@ -108,8 +108,8 @@
 			options = $.extend({}, options, {
 				update_elems: function() {
 					options.send = $.extend({}, options.send, {
-						formElements	: form.find('textarea, select, input[type="text"], input[type="hidden"], input[type="password"]').data('ajax_form', true),
-						button		: form.find('input[type="submit"], button[type="submit"]').data('ajax_form', true)
+						formElements	: form.find('textarea:not([disabled]), select:not([disabled]), input[type="text"]:not([disabled]), input[type="hidden"]:not([disabled]), input[type="password"]:not([disabled])').data('ajax_form', true),
+						button		: form.find('input[type="submit"]:not([disabled]), button[type="submit"]:not([disabled])').data('ajax_form', true)
 					});
 					options.send.formElements.filter(options.filter_not).unbind('keyup').keyup(options.checkElement);
 					options.send.formElements.filter(options.filter).unbind('change').change(options.checkElement);
@@ -238,21 +238,20 @@
 				},
 				checkElement: function() {
 					var currentElement = $(this),
-						   validElement = false,
+						   errorElement = false,
 						   surroundingElement = currentElement.parent(),
 						   classes = currentElement.attr('class');
 					if (!options.send.fullCheck)
 						options.send.validationError = false;
 					surroundingElement.removeClass(options.classes_valid);
 					if (typeof options.beforeCheckElement === 'function') {
-						options.send.validationError = options.beforeCheckElement.call(this, options.send.validationError, surroundingElement, currentElement, options.send.formElements, options);
+						errorElement = options.beforeCheckElement.call(this, errorElement, surroundingElement, currentElement, options.send.formElements, options, form);
 						classes = currentElement.attr('class');
 						if (classes && classes.match(options.regexp.check)) {
-							if (options.send.validationError) {
+							if (errorElement) {
 								surroundingElement.addClass('error');
 							} else {
 								surroundingElement.addClass('valid');
-								validElement = true;
 							}
 						}
 					}
@@ -260,14 +259,13 @@
 					if (classes) {
 						if (classes.match(/is_empty/i)) {
 							if (value === '') {
+								errorElement = true;
 								surroundingElement.removeClass('valid');
 								surroundingElement.addClass('error');
 								surroundingElement.addClass('type0');
-								options.send.validationError = true;
-								validElement = false;
 							} else {
+								errorElement = false;
 								surroundingElement.addClass('valid');
-								validElement = true;
 							}
 						}
 						if (classes.match(/is_int/i)) {
@@ -277,8 +275,7 @@
 								surroundingElement.removeClass('valid');
 								surroundingElement.addClass('error');
 								surroundingElement.addClass('type0');
-								options.send.validationError = true;
-								validElement = false;
+								errorElement = true;
 							}
 						}
 						if (classes.match(/is_float/i)) {
@@ -288,8 +285,7 @@
 								surroundingElement.removeClass('valid');
 								surroundingElement.addClass('error');
 								surroundingElement.addClass('type0');
-								options.send.validationError = true;
-								validElement = false;
+								errorElement = true;
 							}
 						}
 						if (classes.match(/is_text/i)) {
@@ -297,14 +293,13 @@
 								surroundingElement.removeClass('valid');
 								surroundingElement.addClass('error');
 								surroundingElement.addClass('type1');
-								options.send.validationError = true;
-								validElement = false;
+								errorElement = true;
 							} else {
 								if (!surroundingElement.hasClass('type0'))
 									surroundingElement.removeClass('error');
 								if (value !== '') {
 									surroundingElement.addClass('valid');
-									validElement = true;
+									errorElement = false;
 								}
 							}
 						}
@@ -313,14 +308,13 @@
 								surroundingElement.removeClass('valid');
 								surroundingElement.addClass('error');
 								surroundingElement.addClass('type1');
-								options.send.validationError = true;
-								validElement = false;
+								errorElement = true;
 							} else {
 								if (!surroundingElement.hasClass('type0'))
 									surroundingElement.removeClass('error');
 								if (value !== '') {
 									surroundingElement.addClass('valid');
-									validElement = true;
+									errorElement = false;
 								}
 							}
 						}
@@ -342,8 +336,7 @@
 							if (value !== '' && (!value.match(options.regexp.phone) || value_digits.length < parseInt(phone_default[0]) || value_digits.length > parseInt(phone_default[1]))) {
 								surroundingElement.removeClass('valid');
 								surroundingElement.addClass('error');
-								options.send.validationError = true;
-								validElement = false;
+								errorElement = true;
 								if (value_digits.length > 0 && value_digits.length < parseInt(phone_default[0])) {
 									surroundingElement.addClass('type2');
 								} else if (value_digits.length > parseInt(phone_default[1])) {
@@ -356,25 +349,26 @@
 									surroundingElement.removeClass('error');
 								if (value !== '') {
 									surroundingElement.addClass('valid');
-									validElement = true;
+									errorElement = false;
 								}
 							}
 							currentElement.val(value_full);
 						}
 					}
 					if (typeof options.afterCheckElement === 'function') {
-						options.send.validationError = options.afterCheckElement.call(this, options.send.validationError, surroundingElement, currentElement, options.send.formElements, options);
+						errorElement = options.afterCheckElement.call(this, errorElement, surroundingElement, currentElement, options.send.formElements, options, form);
 						classes = currentElement.attr('class');
 						if (classes && classes.match(options.regexp.check)) {
-							if (validElement) {
-								surroundingElement.removeClass('error');
-								surroundingElement.addClass('valid');
-							} else {
+							if (errorElement) {
 								surroundingElement.removeClass('valid');
 								surroundingElement.addClass('error');
+							} else {
+								surroundingElement.removeClass('error');
+								surroundingElement.addClass('valid');
 							}
 						}
 					}
+					options.send.validationError = errorElement;
 				},
 				focusInElement: function() {
 					$(this).parent().find('.onfocus').css('display', options.onFocus);
@@ -636,7 +630,7 @@
 						return tests[i] && c != settings.placeholder ? c : null;
 					}).join('');
 				})
-				if (!input.attr('readonly'))
+				if (!input.attr('readonly')) {
 					input.one('unmask', function() {
 						input.unbind('.mask').removeData($.mask.dataName);
 					}).bind('focus.mask', function() {
@@ -661,6 +655,7 @@
 							input.caret(checkVal(true));
 						}, 0);
 					});
+				}
 				checkVal(); //Perform initial check for existing values
 			});
 		}
