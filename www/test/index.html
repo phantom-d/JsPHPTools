@@ -9,9 +9,10 @@
 				clear: both;
 			}
 			.form_input {
-				float: left;
+				width: 180px;
 			}
 			.form_block {
+				float: left;
 				height: 25px;
 			}
 			.full_sum, .monthly_sum,
@@ -21,8 +22,9 @@
 			}
 			.error_price, .error_percent,
 			.error_full_time, .error_init_pay {
-				border: 1px dashed #F00;
-				padding: 3px;
+				color: #F00;
+				line-height: 25px;
+				vertical-align: middle;
 			}
 		</style>
 		<script>
@@ -95,6 +97,7 @@
 		<div class="mortgage_calc">
 			<form action="">
 				<div class="form_block"><div class="full_sum"></div></div>
+				<div class="cleaner"></div>
 				<div class="form_input form_block"><input type="text" name="price" value="" placeholder="Цена" /> руб.</div>
 				<div class="form_block"><div class="error_price">Указана не корректная стоимость квартиры</div></div>
 				<div class="cleaner"></div>
@@ -108,6 +111,7 @@
 				<div class="form_block"><div class="error_init_pay"></div></div>
 				<div class="cleaner"></div>
 				<div class="form_block"><input value="Расчитать" type="submit" /></div>
+				<div class="cleaner"></div>
 				<div class="form_block"><div class="monthly_sum"></div></div>
 			</form>
 		</div>
