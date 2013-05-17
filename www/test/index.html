@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title></title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+		<style>
+			.cleaner {
+				clear: both;
+			}
+			.form_input {
+				float: left;
+			}
+			.form_block {
+				height: 25px;
+			}
+			.full_sum, .monthly_sum,
+			.error_price, .error_percent,
+			.error_full_time, .error_init_pay {
+				display: none;
+			}
+			.error_price, .error_percent,
+			.error_full_time, .error_init_pay {
+				border: 1px dashed #F00;
+				padding: 3px;
+			}
+		</style>
+		<script>
+			$(function() {
+				$('.mortgage_calc form').each(function() {
+					var form = $(this);
+					$(form).submit(function() {
+						var valid = true,
+							   errors = {},
+							   price = parseFloat($(form).find('input[name="price"]').val().replace(/[^0-9,.]/g, '').replace(',', '.')),
+							   init_pay = parseFloat($(form).find('input[name="init_pay"]').val().replace(/[^0-9,.]/g, '').replace(',', '.')),
+							   percent = parseFloat($(form).find('input[name="percent"]').val().replace(/[^0-9,.]/g, '').replace(',', '.')),
+							   full_time = parseFloat($(form).find('input[name="full_time"]').val().replace(/[^0-9,.]/g, '').replace(',', '.'));
+
+						$(form).find('input').each(function() {
+							var name = $(this).attr('name');
+							errors[name] = false;
+						});
+						if (isNaN(price) || price == 0) {
+							errors.price = true;
+							valid = false;
+							price = '';
+						}
+						if (isNaN(percent) || percent == 0) {
+							errors.percent = true;
+							valid = false;
+							percent = '';
+						}
+						if (isNaN(full_time) || full_time == 0) {
+							errors.full_time = true;
+							valid = false;
+							full_time = '';
+						}
+						if (isNaN(init_pay)) {
+							init_pay = '';
+						}
+
+						$(form).find('input[name="price"]').val(price);
+						$(form).find('input[name="init_pay"]').val(init_pay);
+						$(form).find('input[name="percent"]').val(percent);
+						$(form).find('input[name="full_time"]').val(full_time);
+
+						$.each(errors, function(i, v) {
+							if (v) {
+								$(form).find('.error_' + i).show(0);
+							} else {
+								$(form).find('.error_' + i).hide(0);
+							}
+						});
+						if (valid) {
+							if (init_pay == '') {
+								init_pay = 0;
+							}
+							percent = percent / 1200;
+							full_time = full_time * 12;
+
+							var monthly_sum = (init_pay < price) ? (price - init_pay) * (percent + percent / (Math.pow(1 + percent, full_time) - 1)) : 0;
+							$(form).find('.full_sum').html(parseInt(monthly_sum * full_time) + ' руб.').show(0);
+							$(form).find('.monthly_sum').html(Math.ceil(monthly_sum) + ' руб.').show(0);
+						} else {
+							$(form).find('.full_sum, .monthly_sum').hide(0);
+						}
+						return false;
+					});
+				});
+			});
+		</script>
+	</head>
+	<body>
+		<div class="mortgage_calc">
+			<form action="">
+				<div class="form_block"><div class="full_sum"></div></div>
+				<div class="form_input form_block"><input type="text" name="price" value="" placeholder="Цена" /> руб.</div>
+				<div class="form_block"><div class="error_price">Указана не корректная стоимость квартиры</div></div>
+				<div class="cleaner"></div>
+				<div class="form_input form_block"><input type="text" name="percent" value="" placeholder="Годовой процент" /> %</div>
+				<div class="form_block"><div class="error_percent">Указана не корректная процентная ставка</div></div>
+				<div class="cleaner"></div>
+				<div class="form_input form_block"><input type="text" name="full_time" value="" placeholder="Время в годах" /> г.</div>
+				<div class="form_block"><div class="error_full_time">Указана не корректный срок</div></div>
+				<div class="cleaner"></div>
+				<div class="form_input form_block"><input type="text" name="init_pay" value="" placeholder="Первоначальный платёж" /> руб.</div>
+				<div class="form_block"><div class="error_init_pay"></div></div>
+				<div class="cleaner"></div>
+				<div class="form_block"><input value="Расчитать" type="submit" /></div>
+				<div class="form_block"><div class="monthly_sum"></div></div>
+			</form>
+		</div>
+	</body>
+</html>
