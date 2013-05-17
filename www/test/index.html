@@ -11,6 +11,14 @@
 			.form_input {
 				width: 180px;
 			}
+			.form_input input {
+				border-collapse: collapse;
+				border: 1px solid #BBB;
+				padding: 2px 3px;
+			}
+			.form_input.error input {
+				border-color: #F00;
+			}
 			.form_block {
 				float: left;
 				height: 25px;
@@ -39,7 +47,7 @@
 							   percent = parseFloat($(form).find('input[name="percent"]').val().replace(/[^0-9,.]/g, '').replace(',', '.')),
 							   full_time = parseFloat($(form).find('input[name="full_time"]').val().replace(/[^0-9,.]/g, '').replace(',', '.'));
 
-						$(form).find('input').each(function() {
+						$(form).find('input.is_empty').each(function() {
 							var name = $(this).attr('name');
 							errors[name] = false;
 						});
@@ -69,8 +77,10 @@
 
 						$.each(errors, function(i, v) {
 							if (v) {
+								$(form).find('input[name="' + i + '"]').parent().addClass('error');
 								$(form).find('.error_' + i).show(0);
 							} else {
+								$(form).find('input[name="' + i + '"]').parent().removeClass('error');
 								$(form).find('.error_' + i).hide(0);
 							}
 						});
@@ -88,6 +98,8 @@
 							$(form).find('.full_sum, .monthly_sum').hide(0);
 						}
 						return false;
+					}).submit().find('input').change(function(){
+						$(form).submit();
 					});
 				});
 			});
@@ -98,14 +110,14 @@
 			<form action="">
 				<div class="form_block"><div class="full_sum"></div></div>
 				<div class="cleaner"></div>
-				<div class="form_input form_block"><input type="text" name="price" value="" placeholder="Цена" /> руб.</div>
+				<div class="form_input form_block"><input type="text" class="is_empty" name="price" value="" placeholder="Цена" /> руб.</div>
 				<div class="form_block"><div class="error_price">Указана не корректная стоимость квартиры</div></div>
 				<div class="cleaner"></div>
-				<div class="form_input form_block"><input type="text" name="percent" value="" placeholder="Годовой процент" /> %</div>
+				<div class="form_input form_block"><input type="text" class="is_empty" name="percent" value="" placeholder="Годовой процент" /> %</div>
 				<div class="form_block"><div class="error_percent">Указана не корректная процентная ставка</div></div>
 				<div class="cleaner"></div>
-				<div class="form_input form_block"><input type="text" name="full_time" value="" placeholder="Время в годах" /> г.</div>
-				<div class="form_block"><div class="error_full_time">Указана не корректный срок</div></div>
+				<div class="form_input form_block"><input type="text" class="is_empty" name="full_time" value="" placeholder="Время в годах" /> г.</div>
+				<div class="form_block"><div class="error_full_time">Указан не корректный срок</div></div>
 				<div class="cleaner"></div>
 				<div class="form_input form_block"><input type="text" name="init_pay" value="" placeholder="Первоначальный платёж" /> руб.</div>
 				<div class="form_block"><div class="error_init_pay"></div></div>
