@@ -1,23 +1,54 @@
 <?php
+/**
+ * Контроллер для сбора и вывода информации в отдельную панель
+ * @author Anton Ermolovich <anton.ermolovich@gmail.com>
+ * @version 1.76
+ */
 if (!empty($_SESSION['passvars']['user_name']) && $_SESSION['passvars']['user_name'] == 'antoner') {
 	$_GET['debug'] = true;
 	define('KELNIK', true);
 }
-if (!defined('KELNIK'))
+if (!defined('KELNIK')) {
 	define('KELNIK', ($_SERVER['REMOTE_ADDR'] == '109.167.217.204' || !empty($_GET['kelnik'])));
+}
 
 // Идет ли запрос посредством AJAX
-if (!defined('IS_AJAX'))
+if (!defined('IS_AJAX')) {
 	define('IS_AJAX', (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'));
+}
 
-if (isset($_SESSION['sql_array']))
+
+if (!empty($_SESSION['REDIRECT_STATUS'])) {
+	$_SERVER['REDIRECT_STATUS'] = $_SESSION['REDIRECT_STATUS'];
+	unset($_SESSION['REDIRECT_STATUS']);
+}
+
+if ($_SERVER['REDIRECT_STATUS'] != 200) {
+	$_SESSION['debug_not_clear'] = $_SERVER['REQUEST_URI'];
+}
+
+if (empty($_SESSION['debug_not_clear']) && isset($_SESSION['sql_array'])) {
 	unset($_SESSION['sql_array']);
-if (isset($sql_array))
+}
+if (isset($sql_array)) {
 	unset($sql_array);
-if (isset($_SESSION['debug_array']))
+}
+if (empty($_SESSION['debug_not_clear']) && isset($_SESSION['debug_array'])) {
 	unset($_SESSION['debug_array']);
-if (isset($debug_array))
+}
+if (isset($debug_array)) {
 	unset($debug_array);
+}
+
+if ($_SERVER['REDIRECT_STATUS'] == 200) {
+	if (!empty($_SESSION['sql_array'])) {
+		$_SESSION['sql_array']['redirected_from'] = $_SESSION['debug_not_clear'];
+	}
+	if (!empty($_SESSION['debug_array'])) {
+		$_SESSION['debug_array']['redirected_from'] = $_SERVER['debug_not_clear'];
+	}
+	$_SESSION['debug_not_clear'] = false;
+}
 
 if (!function_exists('debug_sql_array')) {
 
