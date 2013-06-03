@@ -754,7 +754,8 @@ class Debug {
 
 							$test_array = array_keys($item);
 							if (!empty($test_array) && is_string($test_array[0])) {
-								ksort($item, SORT_STRING);
+								$sorting = (preg_match('!^[0-9]+!', $test_array[0])) ? SORT_NUMERIC : SORT_STRING;
+								ksort($item, $sorting);
 							}
 
 							$string .= $this->htmlSpecialChars((array)$item, $level + 1, $recursion)
