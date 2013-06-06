@@ -4,6 +4,7 @@
  * @author Anton Ermolovich <anton.ermolovich@gmail.com>
  * @version 1.761
  */
+putenv('TZ=Europe/Moscow');
 if (!empty($_SESSION['passvars']['user_name']) && $_SESSION['passvars']['user_name'] == 'antoner') {
 	$_GET['debug'] = true;
 	define('KELNIK', true);
