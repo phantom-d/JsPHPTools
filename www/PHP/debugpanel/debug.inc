@@ -2,7 +2,7 @@
 /**
  * Контроллер для сбора и вывода информации в отдельную панель
  * @author Anton Ermolovich <anton.ermolovich@gmail.com>
- * @version 1.76
+ * @version 1.761
  */
 if (!empty($_SESSION['passvars']['user_name']) && $_SESSION['passvars']['user_name'] == 'antoner') {
 	$_GET['debug'] = true;
@@ -78,7 +78,7 @@ if (!function_exists('debug_sql_array')) {
 			list($usec, $sec) = explode(" ", microtime());
 			$micro = substr((string)$usec, 1);
 			$d = date('H:i:s' . $micro, $sec);
-			$path = str_replace(realpath($_SERVER['DOCUMENT_ROOT']), '', $backtrace[0]['file']) . (!empty($name) ? ': ' . $name : '') . '<span style="display: none;">' . $d . '</span>';
+			$path = str_replace(realpath($_SERVER['DOCUMENT_ROOT']), '', $backtrace[0]['file']) . '(' . $backtrace[0]['line'] . ')' . (!empty($name) ? ': ' . $name : '') . '<span style="display: none;">' . $d . '</span>';
 			if (!empty($session)) {
 				if (!isset($_SESSION['sql_array']))
 					$_SESSION['sql_array'] = array();
@@ -118,7 +118,7 @@ if (!function_exists('debug_array')) {
 			list($usec, $sec) = explode(" ", microtime());
 			$micro = substr((string)$usec, 1);
 			$d = date('H:i:s' . $micro, $sec);
-			$path = str_replace(realpath($_SERVER['DOCUMENT_ROOT']), '', $backtrace[0]['file']) . (!empty($name) ? ': ' . $name : '') . '<span style="display: none;">' . $d . '</span>';
+			$path = str_replace(realpath($_SERVER['DOCUMENT_ROOT']), '', $backtrace[0]['file']) . '(' . $backtrace[0]['line'] . ')' . (!empty($name) ? ': ' . $name : '') . '<span style="display: none;">' . $d . '</span>';
 			if (!empty($session)) {
 				if (!isset($_SESSION['debug_array']))
 					$_SESSION['debug_array'] = array();
