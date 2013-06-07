@@ -416,7 +416,7 @@ class ChromePhp {
 /**
  * Класс для сбора и вывода информации в отдельную панель
  * @author Anton Ermolovich <anton.ermolovich@gmail.com>
- * @version 1.76
+ * @version 1.77
  */
 class Debug {
 
@@ -630,17 +630,23 @@ class Debug {
 			'',
 		);
 		$return .= preg_replace($pattern, $replace, $text);
-		if (phpversion() >= 5) {
-			if (preg_last_error() == PREG_INTERNAL_ERROR) {
-				$return = "There is an internal error!\n" . $return;
-			} else if (preg_last_error() == PREG_BACKTRACK_LIMIT_ERROR) {
-				$return = "Backtrack limit was exhausted!\n" . $return;
-			} else if (preg_last_error() == PREG_RECURSION_LIMIT_ERROR) {
-				$return = "Recursion limit was exhausted!\n" . $return;
-			} else if (preg_last_error() == PREG_BAD_UTF8_ERROR) {
-				$return = "Bad UTF8 error!\n" . $return;
-			} else if (preg_last_error() == PREG_BAD_UTF8_ERROR) {
-				$return = "Bad UTF8 offset error!\n" . $return;
+		if (phpversion() >= 5.2) {
+			switch (preg_last_error()) {
+				case PREG_INTERNAL_ERROR:
+					$return = "There is an internal error!\n" . $return;
+					break;
+				case PREG_BACKTRACK_LIMIT_ERROR:
+					$return = "Backtrack limit was exhausted!\n" . $return;
+					break;
+				case PREG_RECURSION_LIMIT_ERROR:
+					$return = "Recursion limit was exhausted!\n" . $return;
+					break;
+				case PREG_BAD_UTF8_ERROR:
+					$return = "Bad UTF8 error!\n" . $return;
+					break;
+				case PREG_BAD_UTF8_ERROR:
+					$return = "Bad UTF8 offset error!\n" . $return;
+					break;
 			}
 		}
 		return $return;
