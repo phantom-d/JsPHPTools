@@ -2,7 +2,7 @@
 /**
  * Контроллер для сбора и вывода информации в отдельную панель
  * @author Anton Ermolovich <anton.ermolovich@gmail.com>
- * @version 1.762
+ * @version 1.763
  */
 putenv('TZ=Europe/Moscow');
 if (!empty($_SESSION['passvars']['user_name']) && $_SESSION['passvars']['user_name'] == 'antoner') {
@@ -62,7 +62,7 @@ if (!function_exists('debug_sql_array')) {
 	 * 	чтобы отследить откуда был вызов
 	 * @param mixed $session Запись результата в сессию
 	 */
-	function debug_sql_array($name = '', $sql = '', $result = null, $backtrace = null, $session = false) {
+	function debug_sql_array($name = '', $sql = '', $result = null, $backtrace = false, $session = false) {
 		if (KELNIK && !empty($_GET['debug'])) {
 			if (empty($backtrace) && !is_null($backtrace)) {
 				$backtrace = debug_backtrace();
@@ -74,8 +74,10 @@ if (!function_exists('debug_sql_array')) {
 			$array = array(
 				'sql' => $sql,
 				'result' => $result,
-				'backtrace' => $_backtrace,
 			);
+			if (!is_null($_backtrace)) {
+				$array['backtrace'] = $_backtrace;
+			}
 			list($usec, $sec) = explode(" ", microtime());
 			$micro = substr((string)$usec, 1);
 			$d = date('H:i:s' . $micro, $sec);
@@ -103,7 +105,7 @@ if (!function_exists('debug_array')) {
 	 * 	чтобы отследить откуда был вызов
 	 * @param mixed $session Запись результата в сессию
 	 */
-	function debug_array($name = '', $value = null, $backtrace = null, $session = false) {
+	function debug_array($name = '', $value = null, $backtrace = false, $session = false) {
 		if (KELNIK && !empty($_GET['debug'])) {
 			if (empty($backtrace) && !is_null($backtrace)) {
 				$backtrace = debug_backtrace();
@@ -114,8 +116,10 @@ if (!function_exists('debug_array')) {
 			}
 			$array = array(
 				'value' => $value,
-				'backtrace' => $_backtrace,
 			);
+			if (!is_null($_backtrace)) {
+				$array['backtrace'] = $_backtrace;
+			}
 			list($usec, $sec) = explode(" ", microtime());
 			$micro = substr((string)$usec, 1);
 			$d = date('H:i:s' . $micro, $sec);
