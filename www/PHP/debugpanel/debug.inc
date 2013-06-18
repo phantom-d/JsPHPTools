@@ -2,7 +2,7 @@
 /**
  * Контроллер для сбора и вывода информации в отдельную панель
  * @author Anton Ermolovich <anton.ermolovich@gmail.com>
- * @version 1.761
+ * @version 1.762
  */
 putenv('TZ=Europe/Moscow');
 if (!empty($_SESSION['passvars']['user_name']) && $_SESSION['passvars']['user_name'] == 'antoner') {
@@ -24,7 +24,7 @@ if (!empty($_SESSION['REDIRECT_STATUS'])) {
 	unset($_SESSION['REDIRECT_STATUS']);
 }
 
-if ($_SERVER['REDIRECT_STATUS'] != 200) {
+if (!empty($_SERVER['REDIRECT_STATUS']) && $_SERVER['REDIRECT_STATUS'] != 200) {
 	$_SESSION['debug_not_clear'] = $_SERVER['REQUEST_URI'];
 }
 
@@ -41,7 +41,7 @@ if (isset($debug_array)) {
 	unset($debug_array);
 }
 
-if ($_SERVER['REDIRECT_STATUS'] == 200) {
+if (!empty($_SERVER['REDIRECT_STATUS']) && $_SERVER['REDIRECT_STATUS'] == 200) {
 	if (!empty($_SESSION['sql_array'])) {
 		$_SESSION['sql_array']['redirected_from'] = $_SESSION['debug_not_clear'];
 	}
