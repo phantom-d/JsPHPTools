@@ -2,7 +2,7 @@
 /**
  * Контроллер для сбора и вывода информации в отдельную панель
  * @author Anton Ermolovich <anton.ermolovich@gmail.com>
- * @version 1.763
+ * @version 1.764
  */
 putenv('TZ=Europe/Moscow');
 if (!empty($_SESSION['passvars']['user_name']) && $_SESSION['passvars']['user_name'] == 'antoner') {
@@ -18,6 +18,9 @@ if (!defined('IS_AJAX')) {
 	define('IS_AJAX', (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'));
 }
 
+if (!defined('DEVELOPER')) {
+	define('DEVELOPER', (KELNIK || isset($_GET['test'])));
+}
 
 if (!empty($_SESSION['REDIRECT_STATUS'])) {
 	$_SERVER['REDIRECT_STATUS'] = $_SESSION['REDIRECT_STATUS'];
