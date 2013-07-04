@@ -1,6 +1,6 @@
 /**
  * jQuery AJAX Form
- * @version 3.13.3
+ * @version 3.13.4
  **/
 (function($, undefined) {
 	$._ajax_form = {
@@ -20,7 +20,7 @@
 				text		: /^[a-zа-яё\- ]+$/ig,
 				email	: /^\w[\w|\.|\-]+@\w[\w|\.|\-]+\.[a-zA-Z]{2,4}$/i,
 				phone	: /^((([0-9][-\. ]?){7})|([+]?[0-9][-\. ]?((([0-9][-\. ]?){3,5})|([(]([0-9][-\. ]?){3,5}[)][-\. ]?))([0-9][-\. ]?){5,7}))([-\. #]?(([0-9][-\. ]?){1,5})?)?$/,
-				check	: /is_empty|is_text|is_phone|is_email/i
+				check	: /is_empty|is_text|is_phone|is_email|is_int|is_float/i
 			},
 			useMaskedPhone		: false,
 			scrollToFirstError: true,
