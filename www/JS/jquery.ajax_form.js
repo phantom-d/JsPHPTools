@@ -1,6 +1,6 @@
 /**
  * jQuery AJAX Form
- * @version 3.13.4
+ * @version 3.13.5
  **/
 (function($, undefined) {
 	$._ajax_form = {
@@ -127,58 +127,64 @@
 						'type': options.type,
 						'dataType': options.dataType,
 						'beforeSend': function() {
-							if (typeof options.beforeSend === 'function')
+							if (typeof options.beforeSend === 'function') {
 								options.beforeSend.call(this, options.send.datastring, options);
+							}
 						},
 						'url': options.sendPath.split('?')[0],
 						'data': options.send.datastring,
 						'complete': function() {
-							if (typeof options.callBack === 'function')
+							if (typeof options.callBack === 'function') {
 								options.callBack.call(this, options.send.formElements, options);
+							}
 						},
 						'success': function(response) {
-							if (options.response) {
-								var text = '',
-									   content = '';
-								if (options.dataType === 'json') {
-									if ($(response.error).length === 0) {
-										text = '<div class="message">' + response.message + '</div>';
+							if (response !== null) {
+								if (options.response) {
+									var text = '',
+										   content = '';
+									if (options.dataType === 'json') {
+										if ($(response.error).length === 0) {
+											text = '<div class="message">' + response.message + '</div>';
+										} else {
+											$.each(response.error, function(i, v) {
+												text += '<div class="error">' + v + '</div>';
+											});
+											if (typeof (response.debug) !== 'undefined' && response.debug !== '')
+												text += '<div class="error">' + response.debug + '</div>';
+										}
 									} else {
-										$.each(response.error, function(i, v) {
-											text += '<div class="error">' + v + '</div>';
-										});
-										if (typeof (response.debug) !== 'undefined' && response.debug !== '')
-											text += '<div class="error">' + response.debug + '</div>';
+										text = response;
 									}
+									if (options.responseContainer) {
+										content = $('<div/>').addClass(options.responseContainer).html(text);
+									} else
+										content = text;
+									if (options.responseClear)
+										$(options.responseTarget).html(content).show();
+									else
+										$(options.responseTarget).append(content).show();
+								}
+								if (options.dataType === 'json') {
+									if ($(response.error).length === 0)
+										success = true;
 								} else {
-									text = response;
-								}
-								if (options.responseContainer) {
-									content = $('<div/>').addClass(options.responseContainer).html(text);
-								} else
-									content = text;
-								if (options.responseClear)
-									$(options.responseTarget).html(content).show();
-								else
-									$(options.responseTarget).append(content).show();
-							}
-							if (options.dataType === 'json') {
-								if ($(response.error).length === 0)
 									success = true;
-							} else
-								success = true;
-							if (success) {
-								$._ajax_form.resetForm(form);
-							}
-							if (options.dataType === 'json') {
-								if (typeof (response.error) === 'undefined') {
-									response = $.extend({}, response, {
-										'error': {}
-									});
+								}
+								if (success) {
+									$._ajax_form.resetForm(form);
+								}
+								if (options.dataType === 'json') {
+									if (typeof (response.error) === 'undefined') {
+										response = $.extend({}, response, {
+											'error': {}
+										});
+									}
+								}
+								if (typeof options.success === 'function') {
+									options.success.call(this, form, response, options.send.formElements, options);
 								}
 							}
-							if (typeof options.success === 'function')
-								options.success.call(this, form, response, options.send.formElements, options);
 						}
 					});
 					return false;
@@ -379,13 +385,15 @@
 				}
 			});
 
-			if (typeof options.before === 'function')
+			if (typeof options.before === 'function') {
 				options.before.call(this, form, options.send.formElements, options.send.button, options);
+			}
 
 			options.update_elems();
 
-			if (typeof options.after === 'function')
+			if (typeof options.after === 'function') {
 				options.after.call(this, form, options.send.formElements, options.send.button, options);
+			}
 		});
 	};
 
