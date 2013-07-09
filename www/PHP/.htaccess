@@ -1,0 +1,35 @@
+<Files ~ "\.(inc|ini|tpl)$">
+Order Allow,Deny
+Deny from All
+</Files>
+
+AddType 'text/javascript; charset=UTF-8' .js
+AddType 'text/css; charset=UTF-8' .css
+AddType "text/xml;" .xml
+
+RewriteEngine On
+RewriteBase /
+
+RewriteRule ^robots.txt /robots.php [L]
+
+# Redirect without "www"
+RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
+RewriteRule ^(.*)$ http://%1/$1 [R=301,L]
+
+# Redirect with "www"
+RewriteCond %{HTTP_HOST} !^www [NC]
+RewriteRule ^(.*)$ http://www.%{HTTP_HOST}/$1 [R=301,L]
+
+# Redirect without "index.php, index.html"
+RewriteCond %{REQUEST_URI} ^(.*)index.(html|php) [NC]
+RewriteRule ^(.*)index\.(html|php)$ /$1 [R=301,L]
+
+# Redirect with last "/"
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_URI} !(.*)/$
+RewriteRule ^(.*)$ $1/ [L,R=301]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule (.*)$ ?action=$1&%{QUERY_STRING} [QSA,L]
