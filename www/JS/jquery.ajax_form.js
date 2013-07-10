@@ -1,6 +1,6 @@
 /**
  * jQuery AJAX Form
- * @version 3.15.0
+ * @version 3.15.1
  **/
 (function($, undefined) {
 	$._ajax_form = {
@@ -34,13 +34,15 @@
 			 * Задаваемые функции
 			 * before			: function(){},
 			 * after			: function(){},
+			 * beforeUpdateElements : function(){},
+			 * afterUpdateElements : function(){},
 			 * beforeCheck		: function(){},
 			 * afterCheck		: function(){},
 			 * beforeCheckElement : function(){},
-			 * afterCheckElement	: function(){},
-			 * afterCheckElementCallback	: function(){},
+			 * afterCheckElement : function(){},
+			 * afterCheckElementCallback : function(){},
 			 * beforeSend		: function(){},
-			 * success			: function(){},
+			 * success		: function(){},
 			 * callBack		: function(){}
 			 **/
 		},
@@ -99,11 +101,14 @@
 			var form = $(this);
 			options.send = {
 				validationError: false,
-				datastring: '',
-				fullCheck: false
+				datastring	: '',
+				fullCheck		: false
 			};
 
-			$(this).bind('update_elems', function() {
+			$(this).bind('update_elements', function() {
+				if (typeof options.beforeUpdateElements === 'function') {
+					options.beforeUpdateElements.call(this, form, options.send.formElements, options.send.button, options);
+				}
 				options.send = $.extend({}, options.send, {
 					formElements	: form.find('textarea:not([disabled]), select:not([disabled]), input[type="text"]:not([disabled]), input[type="hidden"]:not([disabled]), input[type="password"]:not([disabled])').data('ajax_form', true),
 					button		: form.find('input[type="submit"]:not([disabled]), button[type="submit"]:not([disabled])').data('ajax_form', true)
@@ -127,6 +132,9 @@
 					options.send.formElements.filter('.is_phone').each(function () {
 						$(this).mask(options.maskPhone);
 					});
+				}
+				if (typeof options.afterUpdateElements === 'function') {
+					options.afterUpdateElements.call(this, form, options.send.formElements, options.send.button, options);
 				}
 			});
 			options = $.extend({}, options, {
@@ -407,7 +415,7 @@
 				options.before.call(this, form, options);
 			}
 
-			$(this).trigger('update_elems');
+			$(this).trigger('update_elements');
 			options.send.button.attr('disabled', 'disabled');
 
 			if (typeof options.after === 'function') {
