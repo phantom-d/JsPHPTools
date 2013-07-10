@@ -1,6 +1,6 @@
 /**
  * jQuery AJAX Form
- * @version 3.13.5
+ * @version 3.15.0
  **/
 (function($, undefined) {
 	$._ajax_form = {
@@ -17,17 +17,17 @@
 			responseTarget		: 'body',
 			classes_valid		: 'error valid type0 type1 type2 type3',
 			regexp			: {
-				text		: /^[a-zа-яё\- ]+$/ig,
+				text		: /^[a-zA-Zа-яёА-ЯЁ\- ]+$/ig,
 				email	: /^\w[\w|\.|\-]+@\w[\w|\.|\-]+\.[a-zA-Z]{2,4}$/i,
 				phone	: /^((([0-9][-\. ]?){7})|([+]?[0-9][-\. ]?((([0-9][-\. ]?){3,5})|([(]([0-9][-\. ]?){3,5}[)][-\. ]?))([0-9][-\. ]?){5,7}))([-\. #]?(([0-9][-\. ]?){1,5})?)?$/,
 				check	: /is_empty|is_text|is_phone|is_email|is_int|is_float/i
 			},
-			useMaskedPhone		: false,
-			scrollToFirstError: true,
+			scrollToFirstError	: true,
 			is_scrolled		: false,
 			scrollSpeed		: 'fast',
 			scrollTopAdd		: 0,
-			maskPhone			: '9 (999) 999-99-99',
+			useMaskedPhone		: false,
+			maskPhone			: '+7 (999) 999-99-99',
 			filter_not		: ':not(select):not(.on_change)',
 			filter			: 'select, .on_change'
 			/**
@@ -38,6 +38,7 @@
 			 * afterCheck		: function(){},
 			 * beforeCheckElement : function(){},
 			 * afterCheckElement	: function(){},
+			 * afterCheckElementCallback	: function(){},
 			 * beforeSend		: function(){},
 			 * success			: function(){},
 			 * callBack		: function(){}
@@ -101,26 +102,34 @@
 				datastring: '',
 				fullCheck: false
 			};
-			if (options.useMaskedPhone) {
-				options.filter += ', .is_phone';
-				options.filter_not += ':not(.is_phone)';
-			}
-			options = $.extend({}, options, {
-				update_elems: function() {
-					options.send = $.extend({}, options.send, {
-						formElements	: form.find('textarea:not([disabled]), select:not([disabled]), input[type="text"]:not([disabled]), input[type="hidden"]:not([disabled]), input[type="password"]:not([disabled])').data('ajax_form', true),
-						button		: form.find('input[type="submit"]:not([disabled]), button[type="submit"]:not([disabled])').data('ajax_form', true)
-					});
-					options.send.formElements.filter(options.filter_not).unbind('keyup').keyup(options.checkElement);
-					options.send.formElements.filter(options.filter).unbind('change').change(options.checkElement);
-					options.send.button.unbind('click').click(options.checkElementsToSend);
-					if (options.useMaskedPhone) {
-						options.send.formElements.filter('.is_phone').each(function () {
-							$(this).mask(options.maskPhone);
-						});
+
+			$(this).bind('update_elems', function() {
+				options.send = $.extend({}, options.send, {
+					formElements	: form.find('textarea:not([disabled]), select:not([disabled]), input[type="text"]:not([disabled]), input[type="hidden"]:not([disabled]), input[type="password"]:not([disabled])').data('ajax_form', true),
+					button		: form.find('input[type="submit"]:not([disabled]), button[type="submit"]:not([disabled])').data('ajax_form', true)
+				});
+				options.send.formElements.filter(options.filter_not).unbind('keyup').keyup(options.checkElement);
+				options.send.formElements.filter(options.filter).unbind('change').change(options.checkElement);
+				options.send.button.unbind('click').click(options.checkElementsToSend);
+				$(options.send.formElements).each(function(){
+					var classes = $(this).attr('class');
+					if (classes && classes.match(options.regexp.check)) {
+						if(!$(this).hasClass('ajax_form_check')) {
+							$(this).addClass('ajax_form_check');
+						}
+					} else {
+						if($(this).hasClass('ajax_form_check')) {
+							$(this).removeClass('ajax_form_check');
+						}
 					}
-					return options;
-				},
+				});
+				if (options.useMaskedPhone) {
+					options.send.formElements.filter('.is_phone').each(function () {
+						$(this).mask(options.maskPhone);
+					});
+				}
+			});
+			options = $.extend({}, options, {
 				send_ajax_form: function() {
 					var success = false;
 					$.ajax({
@@ -190,15 +199,15 @@
 					return false;
 				},
 				checkElementsToSend: function(e) {
-					// @todo разобраться с блокированием.разблокированием кнопок после нажатия
-					// options.send.button.attr('disabled', 'disabled');
+					 options.send.button.attr('disabled', 'disabled');
 					// reset validation var and send data
 					options.scrollTo = {};
 					options.send.validationError = false;
 					options.send.fullCheck = true;
 					options.send.datastring = 'ajax=1';
-					if (typeof options.beforeCheck === 'function')
+					if (typeof options.beforeCheck === 'function') {
 						options.send.validationError = options.beforeCheck.call(this, options.send.validationError, options.send.formElements, options, form);
+					}
 					$.each(options.send.formElements, function() {
 						var currentElement = $(this),
 							   value = currentElement.val(),
@@ -220,27 +229,24 @@
 							   name = currentElement.attr('name');
 						options.send.datastring += '&' + name + '=' + encodeURI(value);
 					});
-					if (typeof options.afterCheck === 'function')
+					if (typeof options.afterCheck === 'function') {
 						options.send.validationError = options.afterCheck.call(this, options.send.validationError, options.send.formElements, options, form);
+					}
 					options.send.fullCheck = false;
 					if (!options.send.validationError) {
 						if (options.send_ajax) {
 							e.preventDefault();
 							options.send_ajax_form();
-							options.send.button.removeAttr('disabled');
 							return false;
 						} else {
-							options.send.button.removeAttr('disabled');
 							return true;
 						}
 					} else {
 						if (options.scrollToFirstError && options.scrollTo.length) {
 							$._ajax_form.scrollToObject(options.scrollTo, options.scrollSpeed, options.scrollTopAdd);
 						}
-						options.send.button.removeAttr('disabled');
 						return false;
 					}
-					options.send.button.removeAttr('disabled');
 					return true;
 				},
 				checkElement: function() {
@@ -248,8 +254,9 @@
 						   errorElement = false,
 						   surroundingElement = currentElement.parent(),
 						   classes = currentElement.attr('class');
-					if (!options.send.fullCheck)
+					if (!options.send.fullCheck) {
 						options.send.validationError = false;
+					}
 					surroundingElement.removeClass(options.classes_valid);
 					if (typeof options.beforeCheckElement === 'function') {
 						errorElement = options.beforeCheckElement.call(this, errorElement, surroundingElement, currentElement, options.send.formElements, options, form);
@@ -376,6 +383,17 @@
 						}
 					}
 					options.send.validationError = errorElement;
+					if (!options.send.fullCheck) {
+						var ajax_form_check = $(options.send.formElements).filter('.ajax_form_check');
+						if ($(ajax_form_check).length == $(ajax_form_check).parent().filter('.valid').length) {
+							$(options.send.button).removeAttr('disabled');
+						} else {
+							$(options.send.button).attr('disabled', true);
+						}
+					}
+					if (typeof options.afterCheckElementCallback === 'function') {
+						options.afterCheckElementCallback.call(this, surroundingElement, currentElement, options.send.formElements, options, form);
+					}
 				},
 				focusInElement: function() {
 					$(this).parent().find('.onfocus').css('display', options.onFocus);
@@ -386,10 +404,11 @@
 			});
 
 			if (typeof options.before === 'function') {
-				options.before.call(this, form, options.send.formElements, options.send.button, options);
+				options.before.call(this, form, options);
 			}
 
-			options.update_elems();
+			$(this).trigger('update_elems');
+			options.send.button.attr('disabled', 'disabled');
 
 			if (typeof options.after === 'function') {
 				options.after.call(this, form, options.send.formElements, options.send.button, options);
@@ -405,18 +424,17 @@
 
 	$.fn.autoClear = function() {
 		return $(this).each(function() {
-			$(this).data('defaultValue', this.defaultValue);
+			$(this).addClass('hasAutoClear').data('defaultValue', this.defaultValue);
 			$(this).focusin(function() {   // обработка фокуса
 				if ($(this).val() === $(this).data('defaultValue')) {
 					$(this).val('');
 				}
-			})
-				   .blur(function() {    // обработка потери фокуса
+			}).focusin().blur(function() {    // обработка потери фокуса
 				if ($(this).val() === '') {
 					$(this).val($(this).data('defaultValue'));
 				}
 			});
-		});
+		}).blur();
 	}
 
 	var pasteEventName = ($.browser.msie ? 'paste' : 'input') + '.mask';
