@@ -1,6 +1,6 @@
 /**
  * jQuery AJAX Form
- * @version 3.15.2
+ * @version 3.15.3
  **/
 (function($, undefined) {
 	$._ajax_form = {
@@ -347,8 +347,14 @@
 								   value_symbol, value_full;
 							value_full = value;
 							if (options.useMaskedPhone) {
-								value = value_symbol = value_digits;
-								var min_max_dig = options.maskPhone.replace(/[^0-9]/g, '');
+								if (value.replace(options.maskPhone.replace(/[9]/g, '_'), '') == '') {
+									value = '',
+									value_symbol = '',
+									value_digits = '';
+								} else {
+									value = value_symbol = value_digits;
+								}
+								var min_max_dig = options.maskPhone.replace(/[^9]/g, '');
 								min_max = [min_max_dig.length, min_max_dig.length];
 							} else {
 								value_symbol = value.replace(/[^a-zа-я?*!'?;%:+<>/\|=_,`~]/ig, '');
@@ -367,11 +373,19 @@
 									surroundingElement.addClass('type1');
 								}
 							} else {
-								if (!surroundingElement.hasClass('type0'))
+								if (!surroundingElement.hasClass('type0')) {
 									surroundingElement.removeClass('error');
+								}
 								if (value !== '') {
 									surroundingElement.addClass('valid');
 									errorElement = false;
+								} else {
+									if (classes.match(/is_empty/i)) {
+										surroundingElement.removeClass('valid');
+										surroundingElement.addClass('error');
+										surroundingElement.addClass('type0');
+										errorElement = true;
+									}
 								}
 							}
 							if (!options.useMaskedPhone) {
