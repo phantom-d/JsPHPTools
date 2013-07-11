@@ -1,6 +1,6 @@
 /**
  * jQuery AJAX Form
- * @version 3.15.1
+ * @version 3.15.2
  **/
 (function($, undefined) {
 	$._ajax_form = {
@@ -374,7 +374,9 @@
 									errorElement = false;
 								}
 							}
-							currentElement.val(value_full);
+							if (!options.useMaskedPhone) {
+								currentElement.val(value_full);
+							}
 						}
 					}
 					if (typeof options.afterCheckElement === 'function') {
