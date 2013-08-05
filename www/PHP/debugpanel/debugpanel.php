@@ -416,7 +416,7 @@ class ChromePhp {
 /**
  * Класс для сбора и вывода информации в отдельную панель
  * @author Anton Ermolovich <anton.ermolovich@gmail.com>
- * @version 1.77
+ * @version 1.79
  */
 class Debug {
 
@@ -478,6 +478,12 @@ class Debug {
 		'&rbrack;',
 	);
 
+	/**
+	 * Допустимое количество символов в строке
+	 * @var integer
+	 */
+	var $stringLength = 100;
+
 	function __construct($debug = false) {
 		$this->debug_data = !empty($debug);
 		if (phpversion() >= 5.2) {
@@ -517,7 +523,7 @@ class Debug {
 
 		ksort($array, $ksort);
 
-		if (isset($params['globals']) && (boolean)$params['globals']) {
+		if (isset($params['globals']) && (boolean) $params['globals']) {
 			$globals = TRUE;
 		}
 		if (isset($params['css'])) {
@@ -532,7 +538,7 @@ class Debug {
 				}
 			}
 			if (!empty($this->unset_keys)) {
-				foreach ((array)$this->unset_keys as $key) {
+				foreach ((array) $this->unset_keys as $key) {
 					if (isset($array_globals[$key])) {
 						unset($array_globals[$key]);
 					}
@@ -563,12 +569,13 @@ class Debug {
 					}
 				}
 				if (typeof DEBUG_SCRIPT == "undefined" || !DEBUG_SCRIPT) {
-					addJS('<?= $link ?>/js/debug.js');
-					document.write('<link rel="stylesheet" type="text/css" href="<?= $link ?>/js/debug.css"/>');
+					addJS('/js/debug/debug.js');
+					document.write('<link rel="stylesheet" type="text/css" href="/js/debug/debug.css"/>');
 				}
 			</script>
 			<?php
-			echo ob_get_clean() . '<div class="DEBUG_INFO" style="' . $css . '"><a href="#" class="DEBUG">' . $title . '</a><pre>' . $this->prepare_data($array) . "</pre></div>\n";
+
+			echo ob_get_clean() . '<div class="DEBUG_INFO" style="' . $css . '"><a href="#" class="DEBUG">' . $title . '</a><pre>' . $this->prepareData($array) . "</pre></div>\n";
 		}
 	}
 
@@ -578,7 +585,7 @@ class Debug {
 	 * @param string $str
 	 * @return string
 	 */
-	function fixslashes($str) {
+	function fixSlashes($str) {
 		return $str ? strtr($str, '\\', '/') : $str;
 	}
 
@@ -588,27 +595,23 @@ class Debug {
 	 * @param mixed $data
 	 * @return string
 	 */
-	function prepare_data($data) {
+	function prepareData($data) {
 		$no_recode = array();
 		$text = '';
 		$return = '';
 
-		foreach ((array)$this->no_recode as $key) {
+		foreach ((array) $this->no_recode as $key) {
 			if (isset($data[$key])) {
-				$no_recode[$key] = $data[$key];
+				$no_recode['#_NORECODE'][$key] = $data[$key];
 				unset($data[$key]);
 			}
 		}
-		if ((bool)count($no_recode)) {
-			ob_start();
-			var_dump($no_recode);
-			$text = '["#_NORECODE"]=> ' . ob_get_clean();
-		}
 
-		$text = $text . $this->htmlSpecialChars($data);
+		$text = $this->htmlSpecialChars($no_recode, 0, '', false) . $this->htmlSpecialChars($data);
 
-		if ($this->debug_data)
+		if ($this->debug_data) {
 			$return .= $text;
+		}
 		$pattern = array(
 			'/^array.+\{\n/',
 			'/=>[\s]+/',
@@ -660,10 +663,10 @@ class Debug {
 	 * @param string $recursion
 	 * @return string
 	 */
-	function htmlSpecialChars($data, $level = 0, $recursion = '') {
+	function htmlSpecialChars($data, $level = 0, $recursion = '', $convert = true) {
 		$string = '';
 		if ($level > $this->max_level + 1) {
-			$string .= $this->add_tabs($level);
+			$string .= $this->addTabs($level);
 			return $string . "*LIMIT EXCEEDED*\n";
 		}
 		if (is_array($data) && isset($data[$recursion]) && is_array($data[$recursion])) {
@@ -672,41 +675,59 @@ class Debug {
 			$result = ob_get_clean();
 			$pattern = "/\[\"{$recursion}\"\]=\>[\s]+\*RECURSION\*/";
 			if (preg_match($pattern, $result)) {
-				$string .= $this->add_tabs($level);
+				$string .= $this->addTabs($level);
 				return "*RECURSION*\n";
 			}
 		}
 		foreach ($data as $key => $item) {
-			$string .= $this->add_tabs($level);
+			$string .= $this->addTabs($level);
 			$string .= '["' . str_replace(array("\r\n", "\n", '  '), ' ', $key) . '"]=> ';
 			if (is_bool($item) || is_null($item)) {
 				ob_start();
 				var_dump($item);
-				$string .= htmlSpecialChars(ob_get_clean());
+				$to_convert = ob_get_clean();
+				if (!empty($convert)) {
+					$to_convert = htmlSpecialChars($to_convert);
+				}
+				$string .= $to_convert;
 			} else if (is_numeric($item)) {
-				$item = is_float($item) ? (float)$item : (int)$item;
+				$item = is_float($item) ? (float) $item : (int) $item;
 				ob_start();
 				var_dump($item);
-				$string .= htmlSpecialChars(ob_get_clean());
+				$to_convert = ob_get_clean();
+				if (!empty($convert)) {
+					$to_convert = htmlSpecialChars($to_convert);
+				}
+				$string .= $to_convert;
 			} else if (!(is_bool($item) || is_null($item) || is_int($item) || is_float($item)) && is_resource($item)) {
 				$item = str_replace($this->search, $this->replace, $item);
 				ob_start();
 				var_dump($item);
-				$string .= htmlSpecialChars(ob_get_clean());
+				$to_convert = ob_get_clean();
+				if (!empty($convert)) {
+					$to_convert = htmlSpecialChars($to_convert);
+				}
+				$string .= $to_convert;
 			} else if (!(is_bool($item) || is_null($item) || is_int($item) || is_float($item) || is_resource($item)) && is_scalar($item)) {
 				$item = str_replace($this->search, $this->replace, $item);
 				ob_start();
 				var_dump($item);
 				$item_string = ob_get_clean();
-				if (preg_match('/^string/', $item_string) && strlen($item) > 100) {
+				if (preg_match('/^string/', $item_string) && strlen($item) > $this->stringLength) {
 					$string .= "string (" . strlen($item) . ") {";
 					if (!empty($item)) {
-						$string .= "\n" . htmlSpecialChars($item) . "\n";
+						if (!empty($convert)) {
+							$item = htmlSpecialChars($item);
+						}
+						$string .= "\n" . $item . "\n";
 					}
-					$string .= $this->add_tabs($level)
-						. "}\n";
+					$string .= $this->addTabs($level)
+							. "}\n";
 				} else {
-					$string .= htmlSpecialChars($item_string);
+					if (!empty($convert)) {
+						$item_string = htmlSpecialChars($item_string);
+					}
+					$string .= $item_string;
 				}
 			} else {
 				$recursion = $key;
@@ -723,36 +744,36 @@ class Debug {
 						sort($methods, SORT_STRING);
 						ksort($properties, SORT_STRING);
 
-						$string .= "object() {\n"
-							. $this->add_tabs($level)
-							. "['{$class_name}']=> array(" . count($methods) . ") {";
+						$string .= "object(`{$class_name}`) {\n"
+								. $this->addTabs($level)
+								. "['methods']=> array(" . count($methods) . ") {";
 
 						if (!empty($methods)) {
-							$string .= "\n" . $this->htmlSpecialChars((array)$methods, $level + 1);
+							$string .= "\n" . $this->htmlSpecialChars((array) $methods, $level + 1, $recursion, $convert);
 						}
 
-						$string .= $this->add_tabs($level)
-							. "}\n"
-							. $this->add_tabs($level)
-							. "['properties']=> array(" . count($properties) . ") {";
+						$string .= $this->addTabs($level)
+								. "}\n"
+								. $this->addTabs($level)
+								. "['properties']=> array(" . count($properties) . ") {";
 
 						if (!empty($properties)) {
-							$string .= "\n" . $this->htmlSpecialChars((array)$properties, $level + 1);
+							$string .= "\n" . $this->htmlSpecialChars((array) $properties, $level + 1, $recursion, $convert);
 						}
 
-						$string .= $this->add_tabs($level)
-							. "}\n"
-							. $this->add_tabs($level)
-							. '["data"]=> object(' . count($item) . ") {";
+						$string .= $this->addTabs($level)
+								. "}\n"
+								. $this->addTabs($level)
+								. '["data"]=> object(' . count($item) . ') {';
 						if (!empty($item)) {
-							$item_data = (array)$item;
+							$item_data = (array) $item;
 							ksort($item_data, SORT_STRING);
-							$string .= "\n" . $this->htmlSpecialChars($item_data, $level + 1, $recursion)
-								. $this->add_tabs($level);
+							$string .= "\n" . $this->htmlSpecialChars($item_data, $level + 1, $recursion, $convert)
+									. $this->addTabs($level);
 						}
 						$string .= "}\n"
-							. $this->add_tabs($level - 1)
-							. "}\n";
+								. $this->addTabs($level - 1)
+								. "}\n";
 						--$level;
 					} else {
 						if (!empty($item)) {
@@ -764,9 +785,9 @@ class Debug {
 								ksort($item, $sorting);
 							}
 
-							$string .= $this->htmlSpecialChars((array)$item, $level + 1, $recursion)
-								. $this->add_tabs($level)
-								. "}\n";
+							$string .= $this->htmlSpecialChars((array) $item, $level + 1, $recursion, $convert)
+									. $this->addTabs($level)
+									. "}\n";
 						} else {
 							$string .= "array(0){}\n";
 						}
@@ -783,7 +804,7 @@ class Debug {
 	 * @param integer $tabs
 	 * @return string
 	 */
-	function add_tabs($tabs) {
+	function addTabs($tabs) {
 		$string = '';
 		while ($tabs) {
 			$string .= "\t";

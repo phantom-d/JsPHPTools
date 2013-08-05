@@ -1,8 +1,9 @@
 <?php
+
 /**
  * Контроллер для сбора и вывода информации в отдельную панель
  * @author Anton Ermolovich <anton.ermolovich@gmail.com>
- * @version 1.764
+ * @version 1.765
  */
 putenv('TZ=Europe/Moscow');
 if (!empty($_SESSION['passvars']['user_name']) && $_SESSION['passvars']['user_name'] == 'antoner') {
@@ -19,7 +20,7 @@ if (!defined('IS_AJAX')) {
 }
 
 if (!defined('DEVELOPER')) {
-	define('DEVELOPER', (KELNIK || isset($_GET['test'])));
+	define('DEVELOPER', isset($_GET['test']));
 }
 
 if (!empty($_SESSION['REDIRECT_STATUS'])) {
@@ -82,7 +83,7 @@ if (!function_exists('debug_sql_array')) {
 				$array['backtrace'] = $_backtrace;
 			}
 			list($usec, $sec) = explode(" ", microtime());
-			$micro = substr((string)$usec, 1);
+			$micro = substr((string) $usec, 1);
 			$d = date('H:i:s' . $micro, $sec);
 			$path = str_replace(dirname(realpath($_SERVER['DOCUMENT_ROOT'])), '~', $backtrace[0]['file']) . '(' . $backtrace[0]['line'] . ')' . (!empty($name) ? ': ' . $name : '') . '<span style="display: none;">' . $d . '</span>';
 			if (!empty($session)) {
@@ -100,6 +101,7 @@ if (!function_exists('debug_sql_array')) {
 }
 
 if (!function_exists('debug_array')) {
+
 	/**
 	 * Собирает массив данных
 	 * @param mixed $name Ключ массива
@@ -124,7 +126,7 @@ if (!function_exists('debug_array')) {
 				$array['backtrace'] = $_backtrace;
 			}
 			list($usec, $sec) = explode(" ", microtime());
-			$micro = substr((string)$usec, 1);
+			$micro = substr((string) $usec, 1);
 			$d = date('H:i:s' . $micro, $sec);
 			$path = str_replace(dirname(realpath($_SERVER['DOCUMENT_ROOT'])), '~', $backtrace[0]['file']) . '(' . $backtrace[0]['line'] . ')' . (!empty($name) ? ': ' . $name : '') . '<span style="display: none;">' . $d . '</span>';
 			if (!empty($session)) {
@@ -132,8 +134,9 @@ if (!function_exists('debug_array')) {
 					$_SESSION['debug_array'] = array();
 				$_SESSION['debug_array'][count($_SESSION['debug_array']) + 1 . '. ' . $path] = $array;
 			} else {
-				if (!isset($GLOBALS['debug_array']))
+				if (!isset($GLOBALS['debug_array'])) {
 					$GLOBALS['debug_array'] = array();
+				}
 				$GLOBALS['debug_array'][count($GLOBALS['debug_array']) + 1 . '. ' . $path] = $array;
 			}
 		}
@@ -208,10 +211,10 @@ if (KELNIK && !empty($_GET['debug'])) {
 					$debug_panel->debug['$php_config'] = ini_get_all();
 				}
 				$debug_panel->debugPanel(
-					array(
-						'globals' => true,
-					//'css' => 'top: 15px; left: 15px;'
-					)
+						array(
+							'globals' => true,
+						//'css' => 'top: 15px; left: 15px;'
+						)
 				);
 			}
 		}
@@ -255,8 +258,8 @@ if (KELNIK && !empty($_GET['debug'])) {
 
 			// Вывод информации
 			$return .= '<h3>' . $titles[$type] . '</h3>'
-				. '<p>' . $message . '<br />'
-				. 'Источник: ' . ($file) . ', line ' . $line . '<br />';
+					. '<p>' . $message . '<br />'
+					. 'Источник: ' . ($file) . ', line ' . $line . '<br />';
 
 			// Получаем стек вызов и удалем из него вызов myErrorHandler
 			$backtrace = debug_backtrace();
@@ -269,11 +272,11 @@ if (KELNIK && !empty($_GET['debug'])) {
 				$return .= '<li>';
 				if (array_key_exists('file', $call)) {
 					$return .= $call['file'] . ', line '
-						. $call['line'] . ': ';
+							. $call['line'] . ': ';
 				}
 
 				if (array_key_exists('object', $call) &&
-					method_exists($call['object'], '__toString')) {
+						method_exists($call['object'], '__toString')) {
 
 					$return .= $call['object'];
 				}
@@ -317,10 +320,14 @@ if (KELNIK && !empty($_GET['debug'])) {
 
 			$return .= '</ol>';
 			list($usec, $sec) = explode(" ", microtime());
-			$micro = substr((string)$usec, 1);
+			$micro = substr((string) $usec, 1);
 			$d = date('H:i:s' . $micro, $sec);
 
-			$php_errors[$d][] = $return;
+			if (isset($php_errors[$d])) {
+				$php_errors[$d][] = $return;
+			} else {
+				$php_errors[$d] = $return;
+			}
 
 			// Стандартный обработчик ошибок нам не нужен
 			return true;
@@ -329,7 +336,8 @@ if (KELNIK && !empty($_GET['debug'])) {
 	}
 
 	register_shutdown_function('debug_panel');
-	if (!empty($_GET['debug_errors']))
+	if (!empty($_GET['debug_errors'])) {
 		set_error_handler('myErrorHandler');
+	}
 }
 ?>
