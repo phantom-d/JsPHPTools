@@ -569,8 +569,8 @@ class Debug {
 					}
 				}
 				if (typeof DEBUG_SCRIPT == "undefined" || !DEBUG_SCRIPT) {
-					addJS('/js/debug/debug.js');
-					document.write('<link rel="stylesheet" type="text/css" href="/js/debug/debug.css"/>');
+					addJS('<?= $link ?>/js/debug.js');
+					document.write('<link rel="stylesheet" type="text/css" href="<?= $link ?>/js/debug.css"/>');
 				}
 			</script>
 			<?php
