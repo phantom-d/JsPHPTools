@@ -3,7 +3,7 @@
 /**
  * Контроллер для сбора и вывода информации в отдельную панель
  * @author Anton Ermolovich <anton.ermolovich@gmail.com>
- * @version 1.765
+ * @version 1.766
  */
 putenv('TZ=Europe/Moscow');
 if (!empty($_SESSION['passvars']['user_name']) && $_SESSION['passvars']['user_name'] == 'antoner') {
@@ -180,6 +180,15 @@ if (KELNIK && !empty($_GET['debug'])) {
 				if (!empty($GLOBALS['view'])) {
 					$debug_panel->debug['view'] = $GLOBALS['view'];
 				}
+				if (!empty($_GET)) {
+					$debug_panel->debug['_GET'] = $_GET;
+				}
+				if (!empty($_POST)) {
+					$debug_panel->debug['_POST'] = $_POST;
+				}
+				if (!empty($_SESSION)) {
+					$debug_panel->debug['_SESSION'] = $_SESSION;
+				}
 				if (!empty($GLOBALS['sql_array'])) {
 					$debug_panel->debug['#_SQL_ARRAY'] = $GLOBALS['sql_array'];
 					$debug_panel->unset_keys = 'sql_array';
@@ -292,28 +301,27 @@ if (KELNIK && !empty($_GET['debug'])) {
 				$return .= $call['function'] . '(';
 
 				// Печатаем аргументы функции
-				$strArgs = '';
+				$strArgs = array();
 				foreach ($call['args'] as $arg) {
 
 					if (is_null($arg)) {
-						$strArgs .= 'null';
+						$strArgs[] = 'null';
 					} else if (is_bool($arg)) {
-						$strArgs .= ($arg) ? 'true' : 'false';
+						$strArgs[] = ($arg) ? 'true' : 'false';
 					} else if (is_string($arg)) {
-						$strArgs .= '"' . $arg . '"';
+						$strArgs[] = '"' . $arg . '"';
 					} else if (is_integer($arg) || is_float($arg)) {
-						$strArgs .= $arg;
+						$strArgs[] = $arg;
 					} else if (is_array($arg)) {
-						$strArgs .= 'array (' . sizeof($arg) . ')';
+						$strArgs[] = 'array (' . sizeof($arg) . ')';
 					} else if (is_object($arg)) {
-						$strArgs .= 'object (' . get_class($arg) . ')';
+						$strArgs[] = 'object (' . get_class($arg) . ')';
 					} else if (is_resource($arg)) {
-						$strArgs .= 'resource (' . get_resource_type($arg) . ')';
+						$strArgs[] = 'resource (' . get_resource_type($arg) . ')';
 					}
-
-					$strArgs .= ', ';
 				}
-				$strArgs = substr($strArgs, 0, -2);
+
+				$strArgs = implode(', ', $strArgs);
 
 				$return .= $strArgs . ')</li>';
 			}
