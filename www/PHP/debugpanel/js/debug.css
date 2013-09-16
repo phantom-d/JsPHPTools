@@ -1,8 +1,0 @@
-.DEBUG_INFO { margin: 10px; max-width: 93%; position: absolute; top: auto; left: auto; z-index: 1000; color: #444; text-align: left; }
-.DEBUG_INFO * { font-size: 12px; font-family: Verdana, Arial, Helvetica, sans-serif; line-height: 16px; text-align: left; }
-.DEBUG_INFO .DEBUG { padding: 5px 10px; border: 1px dashed red; background: #CCC; text-decoration: none; }
-.DEBUG_INFO .DEBUG:hover { background: #fcefa1; text-decoration: none; }
-.DEBUG_INFO pre { margin: 10px 0; padding: 10px 5px; border: 1px #333 solid; background: #EEE; display: none; color: #555; white-space: pre; white-space: pre-wrap; white-space: -pre-wrap; white-space: -o-pre-wrap; white-space: -moz-pre-wrap; white-space: -hp-pre-wrap; word-wrap: break-word; }
-.DEBUG_INFO .divider { height: 1px; margin: 10px 0 7px; border-top: 1px dashed #444; }
-.DEBUG_INFO .array { display: none; position: relative; }
-.DEBUG_INFO .array_visib {cursor: pointer; color: #00F; position: relative; }
